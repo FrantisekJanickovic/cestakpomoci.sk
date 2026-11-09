@@ -121,7 +121,7 @@ function resourceCard(item) {
         <span>Prístup <b>${escapeHtml(item.access_type || "Neuvedené")}</b></span>
         <span>Cena <b>${escapeHtml(item.price_type || "Neuvedené")}</b></span>
       </div>
-      ${url ? `<a class="card-link" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">Otvoriť zdroj <span aria-hidden="true">↗</span></a>` : ""}
+      ${url ? `<a class="card-link" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">Otvoriť zdroj <span aria-hidden="true">→</span></a>` : ""}
     </article>`;
 }
 
@@ -170,7 +170,7 @@ function ambulanceCard(item) {
       <div class="ambulance-contact">
         ${item.phone ? `<p><a href="${escapeHtml(phoneHref)}">${escapeHtml(item.phone)}</a></p>` : `<p>Telefón neuvedený</p>`}
         ${item.email ? `<p><a href="${escapeHtml(emailHref)}">${escapeHtml(item.email)}</a></p>` : `<p>E-mail neuvedený</p>`}
-        ${website ? `<p><a href="${escapeHtml(website)}" target="_blank" rel="noopener noreferrer">Web ambulancie ↗</a></p>` : ""}
+        ${website ? `<p><a href="${escapeHtml(website)}" target="_blank" rel="noopener noreferrer">Web ambulancie →</a></p>` : ""}
       </div>
       <div class="ambulance-hours">
         <strong>Dnes</strong>
