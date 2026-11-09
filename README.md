@@ -13,6 +13,8 @@ Technický základ slovenskej platformy, ktorá má prepájať:
 - produkčný Vercel projekt je prepojený s vetvou `main`,
 - Supabase databáza vo Frankfurte je aktívna a prepojená cez publishable key,
 - nasadená databázová schéma je zachytená v `supabase/schema.sql`,
+- verejná knižnica obsahuje 83 klasifikovaných a publikovaných zdrojov,
+- adresár ambulancií odlišuje overené kontakty od kandidátov čakajúcich na kontrolu,
 - používateľské zdravotné údaje sa v tejto fáze nezbierajú,
 - verejné údaje sú oddelené od účtov pracovníkov ambulancií,
 - kapacitné hlásenia sú navrhnuté ako append-only záznamy s auditnou stopou.
@@ -40,6 +42,7 @@ npx serve .
 
 1. pripojiť zakúpenú doménu `cestakpomoci.sk`,
 2. doplniť prihlasovanie a onboarding pracovníkov ambulancií,
-3. vytvoriť formulár na odosielanie kapacity a verejné vyhľadávanie,
-4. naplniť a redakčne overiť register ambulancií a obsahový hub.
+3. vytvoriť formulár na odosielanie kapacity,
+4. pokračovať v redakčnom overovaní kontaktov ambulancií,
+5. dopracovať vedenú funkciu „Nájsť moju cestu“.
 

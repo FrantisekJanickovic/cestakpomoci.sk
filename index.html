@@ -3,74 +3,190 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Cesta k pomoci – pripravovaná vstupná brána k overeným informáciám a dostupnej pomoci pre duševné zdravie detí." />
+    <meta name="description" content="Cesta k pomoci – overené materiály a kontakty na detské psychiatrické ambulancie na jednom mieste." />
+    <meta name="theme-color" content="#f7fbf9" />
     <title>Cesta k pomoci</title>
     <link rel="stylesheet" href="/styles.css" />
+    <script src="/app.js" defer></script>
   </head>
   <body>
-    <header class="nav" aria-label="Hlavná navigácia">
-      <a class="brand" href="/" aria-label="Cesta k pomoci – domov">
-        <span class="brand-mark" aria-hidden="true">C</span>
-        <span>Cesta k pomoci</span>
-      </a>
-      <span class="status">Pripravujeme</span>
+    <header class="site-header">
+      <div class="nav-shell">
+        <a class="brand" href="#zdroje" data-view-link="resources" aria-label="Cesta k pomoci – zdroje">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 34 34" role="img"><path d="M8 23.5c3.2-7 7.7-11.4 15.5-14M12 12.5c3.1-.2 5.7.8 7.8 3M11 25.5h12" /></svg>
+          </span>
+          <span>Cesta k pomoci</span>
+        </a>
+
+        <nav class="desktop-nav" aria-label="Hlavná navigácia">
+          <button class="nav-link is-active" type="button" data-view-link="resources">Zdroje</button>
+          <button class="nav-link" type="button" data-view-link="ambulances">Ambulancie</button>
+          <button class="nav-link" type="button" data-view-link="about">O projekte</button>
+        </nav>
+
+        <button class="button button-primary nav-journey" type="button" data-open-journey>
+          Nájsť moju cestu <span aria-hidden="true">→</span>
+        </button>
+
+        <button class="menu-toggle" type="button" aria-label="Otvoriť menu" aria-expanded="false" aria-controls="mobile-menu">
+          <span></span><span></span>
+        </button>
+      </div>
+
+      <nav class="mobile-nav" id="mobile-menu" aria-label="Mobilná navigácia" hidden>
+        <button type="button" data-view-link="resources">Zdroje</button>
+        <button type="button" data-view-link="ambulances">Ambulancie</button>
+        <button type="button" data-view-link="about">O projekte</button>
+        <button type="button" data-open-journey>Nájsť moju cestu</button>
+      </nav>
     </header>
 
     <main>
-      <section class="hero">
-        <div class="eyebrow">Duševné zdravie detí</div>
-        <h1>Keď neviete, čo ďalej, ukážeme vám prvý krok.</h1>
-        <p class="lead">
-          Budujeme slovenskú vstupnú bránu pre rodičov, školy a odborníkov.
-          Overené informácie, zrozumiteľný postup a neskôr aj aktuálna dostupnosť ambulancií na jednom mieste.
-        </p>
-        <div class="actions">
-          <a class="button primary" href="#co-pripravujeme">Čo pripravujeme</a>
-          <a class="button secondary" href="mailto:info@cestakpomoci.sk">Chcem sa zapojiť</a>
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow">Overené zdroje pre deti a dospelých okolo nich</p>
+          <h1 id="hero-title">Prvý krok k pomoci nemusí byť zložitý.</h1>
+          <p class="hero-lead">
+            Nájdite zrozumiteľný materiál, praktický postup alebo kontakt na detskú psychiatrickú ambulanciu.
+            Bez hodnotenia, bez zadávania citlivých údajov.
+          </p>
+          <div class="hero-actions">
+            <button class="button button-primary button-large" type="button" data-open-journey>
+              Nájsť moju cestu <span aria-hidden="true">→</span>
+            </button>
+            <button class="text-link" type="button" data-view-link="resources">Pozrieť všetky zdroje</button>
+          </div>
+          <div class="trust-row" aria-label="Základné informácie">
+            <span><i class="dot dot-mint"></i><strong id="resource-count">83</strong> overených zdrojov</span>
+            <span><i class="dot dot-lilac"></i><strong id="ambulance-count">57</strong> záznamov ambulancií</span>
+          </div>
+        </div>
+
+        <div class="hero-visual" aria-hidden="true">
+          <div class="path-line"></div>
+          <div class="visual-card visual-card-one"><span>1</span><p>Pochopiť situáciu</p></div>
+          <div class="visual-card visual-card-two"><span>2</span><p>Nájsť vhodný krok</p></div>
+          <div class="visual-card visual-card-three"><span>3</span><p>Spojiť sa s pomocou</p></div>
+          <div class="visual-orb orb-one"></div>
+          <div class="visual-orb orb-two"></div>
         </div>
       </section>
 
-      <section class="features" id="co-pripravujeme" aria-labelledby="features-title">
-        <div class="section-heading">
-          <div class="eyebrow">Jedno miesto, jasné kroky</div>
-          <h2 id="features-title">Pomoc sa nemá začínať blúdením.</h2>
+      <section class="view-section is-active" id="resources-view" data-view="resources" aria-labelledby="resources-title">
+        <div class="section-intro">
+          <div>
+            <p class="eyebrow">Knižnica pomoci</p>
+            <h2 id="resources-title">Overené zdroje na jednom mieste</h2>
+          </div>
+          <p>Materiály, programy, kurzy a kontakty sme usporiadali tak, aby sa dali nájsť podľa situácie a človeka, ktorému majú pomôcť.</p>
         </div>
 
-        <div class="grid">
-          <article class="card">
-            <span class="number">01</span>
-            <h3>Pochopiť situáciu</h3>
-            <p>Overené materiály usporiadané podľa toho, čo dieťa a rodina práve riešia.</p>
-          </article>
-          <article class="card">
-            <span class="number">02</span>
-            <h3>Vedieť, čo urobiť</h3>
-            <p>Krátke learning paths pre rodičov, učiteľov a školské podporné tímy.</p>
-          </article>
-          <article class="card">
-            <span class="number">03</span>
-            <h3>Nájsť dostupnú pomoc</h3>
-            <p>Aktuálne kapacitné informácie priamo od zapojených ambulancií.</p>
-          </article>
+        <div class="filter-panel" aria-label="Filtrovanie zdrojov">
+          <label class="search-field field-wide">
+            <span>Hľadať</span>
+            <div class="input-wrap">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="m16 16 4 4"></path></svg>
+              <input id="resource-search" type="search" placeholder="Názov, téma alebo organizácia" autocomplete="off" />
+            </div>
+          </label>
+          <label><span>Téma alebo ťažkosť</span><select id="topic-filter"><option value="">Všetky témy</option></select></label>
+          <label><span>Pre koho</span><select id="audience-filter"><option value="">Pre každého</option></select></label>
+          <label><span>Vek dieťaťa</span><select id="age-filter"><option value="">Každý vek</option></select></label>
+          <label>
+            <span>Zoradiť</span>
+            <select id="resource-sort">
+              <option value="az">Podľa názvu A–Z</option>
+              <option value="za">Podľa názvu Z–A</option>
+              <option value="owner">Podľa organizácie</option>
+            </select>
+          </label>
         </div>
+
+        <div class="results-head">
+          <p><strong id="resource-results-count">0</strong> výsledkov</p>
+          <button class="clear-filters" id="clear-resource-filters" type="button">Vymazať filtre</button>
+        </div>
+
+        <div class="card-grid" id="resource-list" aria-live="polite">
+          <div class="loading-card"><span></span><span></span><span></span></div>
+          <div class="loading-card"><span></span><span></span><span></span></div>
+          <div class="loading-card"><span></span><span></span><span></span></div>
+        </div>
+        <button class="button button-soft load-more" id="load-more-resources" type="button" hidden>Zobraziť ďalšie</button>
       </section>
 
-      <section class="safety" aria-labelledby="safety-title">
-        <div>
-          <div class="eyebrow">Bezpečný základ</div>
-          <h2 id="safety-title">Menej citlivých údajov, viac dôvery.</h2>
+      <section class="view-section" id="ambulances-view" data-view="ambulances" aria-labelledby="ambulances-title" hidden>
+        <div class="section-intro">
+          <div><p class="eyebrow">Detská psychiatria</p><h2 id="ambulances-title">Ambulancie na Slovensku</h2></div>
+          <p>Kontakty zbierame z verejných registrov a stránok poskytovateľov. Overené záznamy sú označené; pri ostatných odporúčame údaje potvrdiť telefonicky.</p>
         </div>
-        <p>
-          Prvá verzia nebude žiadať diagnózu ani zdravotnú dokumentáciu dieťaťa.
-          Zverejní iba overené informácie o službách a kapacite.
-        </p>
+
+        <div class="directory-notice">
+          <span class="notice-icon" aria-hidden="true">i</span>
+          <p><strong>Zoznam nie je objednávací systém.</strong> Dostupnosť termínu sa môže meniť. Údaje o kapacite budú neskôr posielať priamo zapojené ambulancie.</p>
+        </div>
+
+        <div class="filter-panel ambulance-filters" aria-label="Filtrovanie ambulancií">
+          <label class="search-field field-wide">
+            <span>Hľadať ambulanciu</span>
+            <div class="input-wrap">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="m16 16 4 4"></path></svg>
+              <input id="ambulance-search" type="search" placeholder="Názov, mesto alebo lekár" autocomplete="off" />
+            </div>
+          </label>
+          <label><span>Kraj</span><select id="region-filter"><option value="">Celé Slovensko</option></select></label>
+          <label class="checkbox-field">
+            <input id="verified-filter" type="checkbox" />
+            <span><b>Iba overené kontakty</b><small>e‑VÚC alebo poskytovateľ</small></span>
+          </label>
+        </div>
+
+        <div class="results-head">
+          <p><strong id="ambulance-results-count">0</strong> ambulancií</p>
+          <button class="clear-filters" id="clear-ambulance-filters" type="button">Vymazať filtre</button>
+        </div>
+        <div class="ambulance-list" id="ambulance-list" aria-live="polite"></div>
+        <button class="button button-soft load-more" id="load-more-ambulances" type="button" hidden>Zobraziť ďalšie</button>
+      </section>
+
+      <section class="view-section about-section" id="about-view" data-view="about" aria-labelledby="about-title" hidden>
+        <div class="about-hero">
+          <p class="eyebrow">O projekte</p>
+          <h2 id="about-title">Menej blúdenia. Jasnejšia cesta k pomoci.</h2>
+          <p>Cesta k pomoci vzniká ako nezávislý slovenský rozcestník pre rodičov, mladých ľudí, školy a odborníkov. Spája roztrúsené overené materiály s praktickým poradím krokov a adresárom služieb.</p>
+        </div>
+
+        <div class="about-grid">
+          <article><span class="about-number">01</span><h3>Zrozumiteľná orientácia</h3><p>Nehodnotíme dieťa ani neurčujeme diagnózu. Pomáhame pomenovať situáciu a nájsť primeraný ďalší krok.</p></article>
+          <article><span class="about-number">02</span><h3>Overiteľné zdroje</h3><p>Pri každom materiáli uvádzame vlastníka, pôvodný odkaz a úroveň verejne dostupných dôkazov.</p></article>
+          <article><span class="about-number">03</span><h3>Minimum citlivých údajov</h3><p>V tejto fáze nezbierame mená detí, diagnózy, zdravotnú dokumentáciu ani opis konkrétneho prípadu.</p></article>
+        </div>
+
+        <div class="about-callout">
+          <div><p class="eyebrow">Pripravujeme</p><h3>Vedenú cestu podľa situácie</h3><p>Krátke otázky pomôžu vybrať vhodné materiály a vysvetlia, kedy sa obrátiť na školu, poradňu, lekára alebo krízovú pomoc.</p></div>
+          <button class="button button-primary" type="button" data-open-journey>Nájsť moju cestu →</button>
+        </div>
       </section>
     </main>
 
     <footer>
-      <span>© 2026 Cesta k pomoci</span>
-      <span>Projekt je vo fáze prípravy.</span>
+      <a class="brand footer-brand" href="#zdroje" data-view-link="resources">
+        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 34 34"><path d="M8 23.5c3.2-7 7.7-11.4 15.5-14M12 12.5c3.1-.2 5.7.8 7.8 3M11 25.5h12" /></svg></span>
+        <span>Cesta k pomoci</span>
+      </a>
+      <p>Overené zdroje a kontakty pre duševné zdravie detí.</p>
+      <span>© 2026</span>
     </footer>
+
+    <dialog class="journey-dialog" id="journey-dialog" aria-labelledby="journey-title">
+      <button class="dialog-close" type="button" data-close-journey aria-label="Zavrieť">×</button>
+      <div class="dialog-icon" aria-hidden="true">↗</div>
+      <p class="eyebrow">Pripravujeme</p>
+      <h2 id="journey-title">Nájsť moju cestu</h2>
+      <p>Krátky sprievodca sa opýta iba na vekovú skupinu, situáciu a to, komu má pomôcť. Nebude určovať diagnózu ani žiadať osobné údaje dieťaťa.</p>
+      <div class="dialog-preview"><span>Približne 3 minúty</span><span>Bez registrácie</span><span>Bez citlivých údajov</span></div>
+      <button class="button button-soft" type="button" data-close-journey>Zatiaľ si pozriem zdroje</button>
+    </dialog>
   </body>
 </html>
-

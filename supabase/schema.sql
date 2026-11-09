@@ -214,3 +214,49 @@ comment on column public.capacity_updates.submitted_by is
   'Authenticated reporter. Never use this table for patient or child data.';
 comment on table public.content_resources is
   'Curated public resources. Publication is controlled by the service role.';
+
+-- Public directory fields imported from the curated research workbook.
+alter table public.content_resources
+  add column if not exists external_id text unique,
+  add column if not exists owner_type text,
+  add column if not exists origin text,
+  add column if not exists audience_raw text,
+  add column if not exists age_raw text,
+  add column if not exists age_min smallint check (age_min is null or age_min between 0 and 25),
+  add column if not exists age_max smallint check (age_max is null or age_max between 0 and 25),
+  add column if not exists topics_raw text,
+  add column if not exists support_level text,
+  add column if not exists registration_type text,
+  add column if not exists price_type text,
+  add column if not exists evidence_summary text,
+  add column if not exists public_results text,
+  add column if not exists hub_priority text,
+  add column if not exists learning_phase text,
+  add column if not exists url_status text,
+  add column if not exists checked_at date,
+  add column if not exists note text;
+
+alter table public.ambulances
+  alter column address drop not null,
+  add column if not exists physicians text[] not null default '{}',
+  add column if not exists insurers text[] not null default '{}',
+  add column if not exists opening_hours jsonb not null default '{}'::jsonb,
+  add column if not exists source_url text,
+  add column if not exists data_status text not null default 'candidate'
+    check (data_status in ('verified_e_vuc', 'verified_provider', 'candidate', 'needs_review')),
+  add column if not exists last_verified_at date,
+  add column if not exists contact_note text;
+
+create index if not exists content_resources_published_title_idx
+  on public.content_resources (is_published, title);
+create index if not exists ambulances_active_region_city_idx
+  on public.ambulances (active, region, city);
+
+comment on column public.content_resources.topics is
+  'Normalized public filter categories; source wording remains in topics_raw.';
+comment on column public.content_resources.audience is
+  'Normalized public audience categories; source wording remains in audience_raw.';
+comment on column public.ambulances.address is
+  'Public practice address. Null means that the source did not publish a verified address.';
+comment on column public.ambulances.data_status is
+  'Verification level for public directory data. Missing contact fields are left null, never inferred.';
