@@ -260,3 +260,28 @@ comment on column public.ambulances.address is
   'Public practice address. Null means that the source did not publish a verified address.';
 comment on column public.ambulances.data_status is
   'Verification level for public directory data. Missing contact fields are left null, never inferred.';
+
+grant select (
+  external_id,
+  name,
+  provider,
+  region,
+  district,
+  city,
+  address,
+  phone,
+  email,
+  website,
+  physicians,
+  insurers,
+  opening_hours,
+  source_url,
+  data_status,
+  last_verified_at,
+  contact_note,
+  accepts_new,
+  earliest_date,
+  capacity_updated_at,
+  active,
+  is_demo
+) on public.ambulances to anon;
