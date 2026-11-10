@@ -136,6 +136,8 @@
             </div>
           </label>
           <label><span>Kraj</span><select id="region-filter"><option value="">Celé Slovensko</option></select></label>
+          <label><span>Vek dieťaťa</span><select id="ambulance-age-filter"><option value="">Každý vek</option><option value="4">0–5 rokov</option><option value="8">6–11 rokov</option><option value="14">12–18 rokov</option></select></label>
+          <label><span>Aktuálna kapacita</span><select id="capacity-filter"><option value="">Všetky ambulancie</option><option value="available">Prijíma alebo má obmedzenú kapacitu</option><option value="current">Aktualizované za posledných 14 dní</option></select></label>
           <label class="checkbox-field">
             <input id="verified-filter" type="checkbox" />
             <span><b>Iba overené kontakty</b><small>e‑VÚC alebo poskytovateľ</small></span>
@@ -164,8 +166,13 @@
         </div>
 
         <div class="about-callout">
-          <div><p class="eyebrow">Pripravujeme</p><h3>Vedenú cestu podľa situácie</h3><p>Krátke otázky pomôžu vybrať vhodné materiály a vysvetlia, kedy sa obrátiť na školu, poradňu, lekára alebo krízovú pomoc.</p></div>
+          <div><p class="eyebrow">Spustené v MVP</p><h3>Vedená cesta podľa situácie</h3><p>Šesť krátkych otázok vyberie vhodné materiály a ambulancie. Pri bezprostrednom ohrození sprievodca okamžite zobrazí krízový postup.</p></div>
           <button class="button button-primary" type="button" data-open-journey>Nájsť moju cestu →</button>
+        </div>
+
+        <div class="privacy-panel">
+          <div><p class="eyebrow">Anonymná analytika</p><h3>Vidíme nedostatok, nie konkrétne dieťa</h3></div>
+          <p>Po dokončení cesty ukladáme iba kraj, širokú vekovú skupinu, všeobecnú tému, typ hľadanej pomoci a počet nájdených ambulancií. Neukladáme meno, kontakt, diagnózu, voľný opis, IP adresu ani identifikátor zariadenia.</p>
         </div>
       </section>
     </main>
@@ -176,17 +183,23 @@
         <span>Cesta k pomoci</span>
       </a>
       <p>Overené zdroje a kontakty pre duševné zdravie detí.</p>
+      <button class="footer-link" type="button" data-open-capacity>Pre ambulancie</button>
       <span>© 2026</span>
     </footer>
 
     <dialog class="journey-dialog" id="journey-dialog" aria-labelledby="journey-title">
       <button class="dialog-close" type="button" data-close-journey aria-label="Zavrieť">×</button>
-      <div class="dialog-icon" aria-hidden="true">→</div>
-      <p class="eyebrow">Pripravujeme</p>
-      <h2 id="journey-title">Nájsť moju cestu</h2>
-      <p>Krátky sprievodca sa opýta iba na vekovú skupinu, situáciu a to, komu má pomôcť. Nebude určovať diagnózu ani žiadať osobné údaje dieťaťa.</p>
-      <div class="dialog-preview"><span>Približne 3 minúty</span><span>Bez registrácie</span><span>Bez citlivých údajov</span></div>
-      <button class="button button-soft" type="button" data-close-journey>Zatiaľ si pozriem zdroje</button>
+      <div id="journey-content" aria-live="polite"></div>
+    </dialog>
+
+    <dialog class="capacity-dialog" id="capacity-dialog" aria-labelledby="capacity-title">
+      <button class="dialog-close" type="button" data-close-capacity aria-label="Zavrieť">×</button>
+      <div id="capacity-content" aria-live="polite">
+        <p class="eyebrow">Pre ambulancie</p>
+        <h2 id="capacity-title">Aktualizácia kapacity</h2>
+        <p>Otvorte osobný odkaz, ktorý sme poslali vašej ambulancii. Nevyžaduje heslo a neobsahuje údaje o pacientoch.</p>
+        <div class="portal-note">Ak odkaz ešte nemáte, kontaktujte prevádzkovateľa projektu. Každá ambulancia dostane vlastný bezpečný odkaz.</div>
+      </div>
     </dialog>
   </body>
 </html>
