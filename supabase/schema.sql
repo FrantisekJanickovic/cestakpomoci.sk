@@ -285,3 +285,102 @@ grant select (
   active,
   is_demo
 ) on public.ambulances to anon;
+
+-- Guided journey, anonymous demand signals and passwordless clinic capacity updates.
+-- The demand table contains coarse categories only: never names, contact details,
+-- diagnoses, free text or device identifiers.
+alter table public.ambulances
+  add column if not exists capacity_status text not null default 'unknown'
+    check (capacity_status in ('accepting', 'limited', 'full', 'call', 'unknown'));
+
+alter table public.capacity_updates
+  add column if not exists capacity_status text not null default 'unknown'
+    check (capacity_status in ('accepting', 'limited', 'full', 'call', 'unknown')),
+  add column if not exists note_public text check (note_public is null or char_length(note_public) <= 240),
+  add column if not exists valid_until timestamptz;
+
+alter table public.demands
+  add column if not exists topic text not null default 'general'
+    check (topic in ('anxiety', 'mood', 'self_harm', 'adhd', 'behaviour', 'bullying', 'eating', 'relationships', 'stress', 'school', 'trauma', 'general')),
+  add column if not exists audience text not null default 'parent'
+    check (audience in ('child', 'parent', 'teacher', 'professional')),
+  add column if not exists support_type text not null default 'either'
+    check (support_type in ('materials', 'ambulance', 'either')),
+  add column if not exists urgency text not null default 'soon'
+    check (urgency in ('information', 'soon', 'urgent_non_emergency')),
+  add column if not exists source text not null default 'guided_journey'
+    check (source in ('guided_journey', 'availability_search'));
+
+create index if not exists ambulances_current_capacity_idx
+  on public.ambulances (region, capacity_status, capacity_valid_until)
+  where active = true and is_demo = false;
+create index if not exists demands_anonymous_aggregate_idx
+  on public.demands (region, age_band, topic, support_type, created_at desc);
+
+-- A clinic magic link carries its public external_id and a random 256-bit token.
+-- The Vercel function hashes the token before forwarding it. RLS compares the
+-- hash with the row and the raw secret never reaches Postgres.
+drop policy if exists "Magic link can update ambulance capacity" on public.ambulances;
+create policy "Magic link can update ambulance capacity"
+  on public.ambulances for update
+  to anon
+  using (
+    active = true
+    and update_token_hash is not null
+    and update_token_hash = (
+      coalesce(current_setting('request.headers', true), '{}')::jsonb
+        ->> 'x-capacity-token-hash'
+    )
+  )
+  with check (
+    active = true
+    and update_token_hash is not null
+    and update_token_hash = (
+      coalesce(current_setting('request.headers', true), '{}')::jsonb
+        ->> 'x-capacity-token-hash'
+    )
+  );
+
+-- Direct public reads expose only directory-safe columns. The token hash stays hidden.
+grant select (
+  id,
+  age_min,
+  age_max,
+  slots_30d,
+  note_public,
+  capacity_valid_until,
+  capacity_status
+) on public.ambulances to anon;
+
+grant update (
+  accepts_new,
+  earliest_date,
+  slots_30d,
+  note_public,
+  capacity_updated_at,
+  capacity_valid_until,
+  capacity_status,
+  last_verified_at,
+  data_status,
+  updated_at
+) on public.ambulances to anon;
+
+revoke insert on public.capacity_updates from anon;
+
+revoke select on public.demands from anon, authenticated;
+grant insert (
+  region,
+  age_band,
+  radius_km,
+  result_count,
+  topic,
+  audience,
+  support_type,
+  urgency,
+  source
+) on public.demands to anon;
+
+comment on column public.ambulances.update_token_hash is
+  'SHA-256 hash of a clinic capability token. Never expose through the public directory API.';
+comment on table public.demands is
+  'Anonymous aggregate demand only. No names, diagnoses, free text, emails, phone numbers or device identifiers.';
