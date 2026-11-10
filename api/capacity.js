@@ -47,6 +47,7 @@ module.exports = async function handler(request, response) {
     try {
       const ambulance = await loadAmbulance(baseUrl, key, externalId);
       if (!ambulance) return response.status(404).json({ error: "Ambulance not found" });
+      delete ambulance.id;
       response.setHeader("Cache-Control", "no-store");
       return response.status(200).json(ambulance);
     } catch (error) {
@@ -76,6 +77,10 @@ module.exports = async function handler(request, response) {
 
   const tokenHash = crypto.createHash("sha256").update(token, "utf8").digest("hex");
   const now = new Date();
+  const today = now.toISOString().slice(0, 10);
+  if ((status === "accepting" || status === "limited") && earliestDate && earliestDate < today) {
+    return response.status(400).json({ error: "Date cannot be in the past" });
+  }
   const validUntil = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000).toISOString();
   const accepting = status === "accepting" || status === "limited" ? true : status === "full" ? false : null;
   const allowsDate = status === "accepting" || status === "limited";
