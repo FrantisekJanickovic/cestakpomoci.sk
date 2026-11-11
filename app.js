@@ -237,7 +237,7 @@ function choiceButtons(options, key) {
 
 function journeyShell(title, description, body, step) {
   const progress = Math.round((step / 6) * 100);
-  return `<div class="journey-head"><div><p class="eyebrow">Nájsť moju cestu · krok ${step} zo 6</p><h2 id="journey-title">${title}</h2></div><div class="journey-progress" aria-label="Dokončené ${progress} %"><span style="width:${progress}%"></span></div></div>${description ? `<p class="journey-description">${description}</p>` : ""}${body}<p class="journey-privacy">Bez mena, kontaktu, diagnózy a voľného zdravotného textu.</p>`;
+  return `<div class="journey-head"><div><p class="eyebrow">Nájsť moju cestu · krok ${step} zo 6</p><h2 id="journey-title">${title}</h2></div><div class="journey-progress" aria-label="Dokončené ${progress} %"><span style="width:${progress}%"></span></div></div>${description ? `<p class="journey-description">${description}</p>` : ""}${body}${step > 1 ? `<button type="button" class="button button-soft journey-back" id="journey-back">← Späť</button>` : ""}<p class="journey-privacy">Bez mena, kontaktu, diagnózy a voľného zdravotného textu.</p>`;
 }
 
 function startJourney() {
@@ -274,7 +274,8 @@ function renderJourney() {
     });
   }
 
-  $$('[data-journey-key]', content).forEach((button) => button.addEventListener("click", () => {
+  $("#journey-back")?.addEventListener("click", () => { state.journey.step -= 1; renderJourney(); });
+  $('[data-journey-key]', content).forEach((button) => button.addEventListener("click", () => {
     const key = button.dataset.journeyKey; const value = button.dataset.journeyValue;
     if (key === "urgency" && value === "immediate") state.journey.step = "crisis";
     else { answers[key] = value; state.journey.step += 1; }
