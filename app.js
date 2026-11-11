@@ -4,6 +4,7 @@ const state = {
   resourceLimit: 12,
   ambulanceLimit: 15,
   journey: { step: 0, answers: {} },
+  learningProgress: {},
 };
 
 const collator = new Intl.Collator("sk", { sensitivity: "base" });
@@ -265,10 +266,10 @@ function renderJourney() {
     { value: "either", label: "Oboje – ukážte mi najlepšiu cestu" },
   ], "supportType"), 5);
   else if (step === 6) {
-    const regions = uniqueSorted(state.ambulances.map((item) => item.region)).filter((region) => region !== "Celé Slovensko");
-    content.innerHTML = journeyShell("Kde hľadáte pomoc?", "Kraj používame iba na zoradenie ambulancií a anonymné meranie nedostatku služieb.", `<div class="journey-form"><label><span>Kraj</span><select id="journey-region"><option value="Celé Slovensko">Celé Slovensko</option>${regions.map((region) => `<option value="${escapeHtml(region)}">${escapeHtml(formatRegion(region))}</option>`).join("")}</select></label><label><span>Ako ďaleko môžete cestovať?</span><select id="journey-radius"><option value="25">Do 25 km</option><option value="50" selected>Do 50 km</option><option value="100">Do 100 km</option><option value="300">Celé Slovensko</option></select></label><label class="sr-honeypot" aria-hidden="true">Web<input id="journey-website" tabindex="-1" autocomplete="off" /></label><button class="button button-primary button-large" type="button" id="journey-finish">Ukázať moju cestu →</button></div>`, 6);
+    const regions = uniqueSorted(["Bratislavský", "Trnavský", "Trenčiansky", "Nitriansky", "Žilinský", "Banskobystrický", "Prešovský", "Košický", ...state.ambulances.map((item) => item.region)]).filter((region) => region !== "Celé Slovensko");
+    content.innerHTML = journeyShell("V ktorom kraji hľadáte pomoc?", "Výsledky ambulancií filtrujeme podľa kraja. Presnú vzdialenosť ani čas cesty zatiaľ nevieme spoľahlivo vypočítať.", `<div class="journey-form"><label><span>Kraj</span><select id="journey-region"><option value="Celé Slovensko">Celé Slovensko</option>${regions.map((region) => `<option value="${escapeHtml(region)}">${escapeHtml(formatRegion(region))}</option>`).join("")}</select></label><p class="journey-privacy">Zobrazíme kontakty v zvolenom kraji; dostupnosť si vždy potvrďte priamo s ambulanciou.</p><label class="sr-honeypot" aria-hidden="true">Web<input id="journey-website" tabindex="-1" autocomplete="off" /></label><button class="button button-primary button-large" type="button" id="journey-finish">Ukázať moju cestu →</button></div>`, 6);
     $("#journey-finish").addEventListener("click", () => {
-      answers.region = $("#journey-region").value; answers.radiusKm = Number($("#journey-radius").value); answers.website = $("#journey-website").value; state.journey.step = "results"; renderJourney();
+      answers.region = $("#journey-region").value; answers.radiusKm = 300; answers.website = $("#journey-website").value; state.journey.step = "results"; renderJourney();
     });
   }
 
@@ -334,7 +335,7 @@ function renderJourneyResults() {
   $$('[data-go-ambulances], [data-show-all-ambulances]').forEach((button) => button.addEventListener("click", () => {
     $("#journey-dialog").close(); setView("ambulances");
     if (answers.region !== "Celé Slovensko") $("#region-filter").value = answers.region;
-    if (age) $("#ambulance-age-filter").value = String(age.sample);
+    if (age) $("#ambulance-age-filter").value = String(age.sample <= 5 ? 4 : age.sample <= 11 ? 8 : 14);
     renderAmbulances();
   }));
   $("[data-show-all-resources]")?.addEventListener("click", () => { $("#journey-dialog").close(); setView("resources"); });
@@ -348,6 +349,36 @@ async function recordDemand(payload) {
     const result = await fetch("/api/demand", { method: "POST", headers: { "Content-Type": "application/json" }, body: signature });
     if (result.ok) sessionStorage.setItem("journey-demand", signature);
   } catch { /* Analytics never blocks results. */ }
+}
+
+
+function renderLearningPaths() {
+  const target = $("#learning-path-list");
+  if (!target || typeof LEARNING_PATHS === "undefined") return;
+  target.innerHTML = LEARNING_PATHS.map((path) =>
+    `<article class="resource-card learning-card"><span class="format-tag">Vzdelávacia cesta</span><h3>${escapeHtml(path.title)}</h3><p>${escapeHtml(path.summary)}</p><p class="journey-privacy">3 krátke kroky · bez registrácie</p><button type="button" class="button button-soft" data-learning-slug="${escapeHtml(path.slug)}">Otvoriť cestu →</button></article>`
+  ).join("");
+  $("[data-learning-slug]", target).forEach((button) => button.addEventListener("click", () => openLearningPath(button.dataset.learningSlug)));
+}
+
+function openLearningPath(slug) {
+  if (typeof LEARNING_PATHS === "undefined") return;
+  const path = LEARNING_PATHS.find((entry) => entry.slug === slug);
+  if (!path) return;
+  const done = state.learningProgress[slug] || new Set();
+  const topic = JOURNEY.topics.find((entry) => entry.demand === path.slug);
+  const relevant = topic ? state.resources.filter((item) => (item.topics || []).includes(topic.value)).slice(0, 3) : [];
+  const progress = done.size;
+  $("#journey-content").innerHTML = `<div class="journey-results"><p class="eyebrow">Vzdelávacia cesta · ${progress} z ${path.steps.length} krokov</p><h2 id="journey-title">${escapeHtml(path.title)}</h2><p>${escapeHtml(path.summary)}</p><p class="journey-privacy">Tvoj postup si pamätáme len do obnovenia stránky; nikam sa neposiela.</p><div class="learning-steps">${path.steps.map((step, index) => `<article class="learning-step"><label><input type="checkbox" data-learning-step="${index}" ${done.has(index) ? "checked" : ""} /><span><strong>${index + 1}. ${escapeHtml(step[0])}</strong><span>${escapeHtml(step[1])}</span></span></label></article>`).join("")}</div>${relevant.length ? `<section><h3>Súvisiace overené zdroje</h3><div class="journey-result-grid">${relevant.map(compactResource).join("")}</div></section>` : ""}<p class="journey-privacy">Tento sprievodca nenahrádza individuálne odborné posúdenie. Pri bezprostrednom ohrození volajte 112 alebo 155.</p><button type="button" class="button button-soft" id="learning-close">Zavrieť</button></div>`;
+  const dialog = $("#journey-dialog");
+  if (!dialog.open) dialog.showModal();
+  $("[data-learning-step]", $("#journey-content")).forEach((input) => input.addEventListener("change", () => {
+    const step = Number(input.dataset.learningStep);
+    if (input.checked) done.add(step); else done.delete(step);
+    state.learningProgress[slug] = done;
+    openLearningPath(slug);
+  }));
+  $("#learning-close").addEventListener("click", () => dialog.close());
 }
 
 function openCapacityInfo() {
@@ -415,6 +446,7 @@ function bindEvents() {
 }
 
 bindEvents();
+renderLearningPaths();
 const capacityLink = parseCapacityLink();
 const initialHash = location.hash.replace("#", "");
 if (!capacityLink) setView({ ambulancie: "ambulances", "o-projekte": "about" }[initialHash] || "resources", false);
