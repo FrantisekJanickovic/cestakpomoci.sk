@@ -5,6 +5,7 @@ const state = {
   ambulanceLimit: 15,
   journey: { step: 0, answers: {} },
   learningProgress: {},
+  demandSignatures: new Set(),
 };
 
 const collator = new Intl.Collator("sk", { sensitivity: "base" });
@@ -346,10 +347,10 @@ function renderJourneyResults() {
 
 async function recordDemand(payload) {
   const signature = JSON.stringify(payload);
-  if (sessionStorage.getItem("journey-demand") === signature) return;
+  if (state.demandSignatures.has(signature)) return;
   try {
     const result = await fetch("/api/demand", { method: "POST", headers: { "Content-Type": "application/json" }, body: signature });
-    if (result.ok) sessionStorage.setItem("journey-demand", signature);
+    if (result.ok) state.demandSignatures.add(signature);
   } catch { /* Analytics never blocks results. */ }
 }
 
