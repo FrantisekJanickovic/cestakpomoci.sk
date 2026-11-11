@@ -16,7 +16,11 @@ const assert = require("node:assert/strict");
       catch { await new Promise(resolve => setTimeout(resolve, 200)); }
     }
     assert.ok(loaded, "local server failed to start");
+    await page.waitForLoadState("load");
     await page.locator("[data-open-journey]").first().click();
+    console.log("PAGE ERRORS:", jsErrors);
+    console.log("OPEN:", await page.locator("#journey-dialog").evaluate(el => el.open));
+    console.log("SCRIPT:", await page.evaluate(() => ({ appState: typeof state, learningPaths: typeof LEARNING_PATHS, dialog: document.querySelector("#journey-dialog")?.outerHTML.slice(0,150) })));
     assert.equal(await page.locator("#journey-dialog").evaluate(el => el.open), true, "questionnaire did not open");
     assert.match(await page.locator("#journey-content").innerText(), /bezprostrednom ohrození/);
     await page.locator('[data-journey-value="information"]').click();
