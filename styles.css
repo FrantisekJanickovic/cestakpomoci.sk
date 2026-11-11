@@ -433,3 +433,22 @@ footer { min-height: 120px; display: grid; grid-template-columns: 1fr auto auto 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+
+/* Editorial learning routes */
+.learning-section { margin-top: 76px; padding-top: 50px; border-top: 1px solid var(--line); }
+.learning-section .section-intro { margin-bottom: 26px; }
+.learning-card { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+.learning-card h3 { margin: 0; }
+.learning-card > p { margin: 0; color: var(--muted); }
+.learning-card .button { margin-top: auto; }
+.learning-recommendation { padding: 20px; border: 1px solid var(--line); border-radius: 17px; background: var(--surface-soft); }
+.learning-recommendation h3 { margin-top: 0; }
+.learning-steps { display: grid; gap: 12px; margin-top: 23px; }
+.learning-step { border: 1px solid var(--line); border-radius: 17px; padding: 17px; background: var(--surface); }
+.learning-step label { display: flex; align-items: flex-start; gap: 13px; cursor: pointer; }
+.learning-step input { flex: 0 0 20px; width: 20px; height: 20px; margin-top: 4px; accent-color: var(--teal); }
+.learning-step label > span { display: grid; gap: 6px; }
+.learning-step strong { font-size: 16px; }
+.learning-step label > span > span { line-height: 1.6; color: var(--muted); font-size: 14px; }
+.learning-step:has(input:checked) { border-color: #a6d4c4; background: #f3faf6; }
