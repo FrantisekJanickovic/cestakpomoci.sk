@@ -19,9 +19,9 @@ function validExternalId(value) {
 
 function parseDate(value) {
   if (!value) return null;
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return undefined;
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return undefined;
   const date = new Date(`${value}T00:00:00Z`);
-  return Number.isNaN(date.getTime()) ? undefined : value;
+  return Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== value ? undefined : value;
 }
 
 async function loadAmbulance(baseUrl, key, externalId) {
@@ -31,12 +31,17 @@ async function loadAmbulance(baseUrl, key, externalId) {
     "capacity_updated_at", "capacity_valid_until", "last_verified_at", "data_status",
   ].join(",");
   const url = `${baseUrl}/rest/v1/ambulances?select=${encodeURIComponent(fields)}&external_id=eq.${encodeURIComponent(externalId)}&active=eq.true&limit=1`;
-  const result = await fetch(url, { headers: headers(key) });
+  const result = await fetch(url, { headers: headers(key), signal: AbortSignal.timeout(8000) });
   if (!result.ok) throw new Error(`Supabase returned ${result.status}`);
   return (await result.json())[0] || null;
 }
 
 module.exports = async function handler(request, response) {
+  response.setHeader("Cache-Control", "no-store");
+  if (request.method !== "GET" && request.method !== "POST") {
+    response.setHeader("Allow", "GET, POST");
+    return response.status(405).json({ error: "Method not allowed" });
+  }
   const { baseUrl, key } = config();
   if (!baseUrl || !key) return response.status(503).json({ error: "Data source is not configured" });
 
@@ -66,9 +71,9 @@ module.exports = async function handler(request, response) {
   const status = body.status;
   const earliestDate = parseDate(body.earliestDate);
   const slots = body.slots30d === "" || body.slots30d == null ? null : Number(body.slots30d);
-  const note = typeof body.note === "string" ? body.note.trim().slice(0, 240) : "";
+  const note = typeof body.note === "string" ? body.note.trim() : "";
 
-  if (typeof token !== "string" || token.length < 32 || token.length > 160 || !STATUSES.has(status)) {
+  if (typeof token !== "string" || !/^[a-f0-9]{64}$/i.test(token) || !STATUSES.has(status) || note.length > 240 || (body.note != null && typeof body.note !== "string")) {
     return response.status(400).json({ error: "Invalid capacity update" });
   }
   if (earliestDate === undefined || (slots !== null && (!Number.isInteger(slots) || slots < 0 || slots > 99))) {
@@ -109,6 +114,7 @@ module.exports = async function handler(request, response) {
         "x-capacity-token-hash": tokenHash,
       }),
       body: JSON.stringify(patch),
+      signal: AbortSignal.timeout(8000),
     });
     if (!updateResult.ok) throw new Error(`Supabase update returned ${updateResult.status}`);
     const updated = (await updateResult.json())[0];
