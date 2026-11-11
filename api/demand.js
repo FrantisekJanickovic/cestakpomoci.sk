@@ -13,6 +13,7 @@ const URGENCIES = new Set(["information", "soon", "urgent_non_emergency"]);
 const SOURCES = new Set(["guided_journey", "availability_search"]);
 
 module.exports = async function handler(request, response) {
+  response.setHeader("Cache-Control", "no-store");
   if (request.method !== "POST") {
     response.setHeader("Allow", "POST");
     return response.status(405).json({ error: "Method not allowed" });
@@ -24,6 +25,8 @@ module.exports = async function handler(request, response) {
 
   const body = request.body && typeof request.body === "object" ? request.body : {};
   if (body.website) return response.status(204).end();
+  // Crisis requests must never be recorded as analytics.
+  if (body.urgency === "emergency" || body.urgency === "crisis") return response.status(204).end();
 
   const payload = {
     region: body.region,
@@ -59,6 +62,7 @@ module.exports = async function handler(request, response) {
         Prefer: "return=minimal",
       },
       body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(8000),
     });
     if (!result.ok) throw new Error(`Supabase returned ${result.status}`);
     response.setHeader("Cache-Control", "no-store");
