@@ -275,7 +275,7 @@ function renderJourney() {
   }
 
   $("#journey-back")?.addEventListener("click", () => { state.journey.step -= 1; renderJourney(); });
-  $('[data-journey-key]', content).forEach((button) => button.addEventListener("click", () => {
+  $$('[data-journey-key]', content).forEach((button) => button.addEventListener("click", () => {
     const key = button.dataset.journeyKey; const value = button.dataset.journeyValue;
     if (key === "urgency" && value === "immediate") state.journey.step = "crisis";
     else { answers[key] = value; state.journey.step += 1; }
@@ -362,7 +362,7 @@ function renderLearningPaths() {
   target.innerHTML = LEARNING_PATHS.map((path) =>
     `<article class="resource-card learning-card"><span class="format-tag">Vzdelávacia cesta</span><h3>${escapeHtml(path.title)}</h3><p>${escapeHtml(path.summary)}</p><p class="journey-privacy">3 krátke kroky · bez registrácie</p><button type="button" class="button button-soft" data-learning-slug="${escapeHtml(path.slug)}">Otvoriť cestu →</button></article>`
   ).join("");
-  $("[data-learning-slug]", target).forEach((button) => button.addEventListener("click", () => openLearningPath(button.dataset.learningSlug)));
+  $$("[data-learning-slug]", target).forEach((button) => button.addEventListener("click", () => openLearningPath(button.dataset.learningSlug)));
 }
 
 function openLearningPath(slug) {
@@ -376,7 +376,7 @@ function openLearningPath(slug) {
   $("#journey-content").innerHTML = `<div class="journey-results"><p class="eyebrow">Vzdelávacia cesta · ${progress} z ${path.steps.length} krokov</p><h2 id="journey-title">${escapeHtml(path.title)}</h2><p>${escapeHtml(path.summary)}</p><p class="journey-privacy">Tvoj postup si pamätáme len do obnovenia stránky; nikam sa neposiela.</p><div class="learning-steps">${path.steps.map((step, index) => `<article class="learning-step"><label><input type="checkbox" data-learning-step="${index}" ${done.has(index) ? "checked" : ""} /><span><strong>${index + 1}. ${escapeHtml(step[0])}</strong><span>${escapeHtml(step[1])}</span></span></label></article>`).join("")}</div>${relevant.length ? `<section><h3>Súvisiace overené zdroje</h3><div class="journey-result-grid">${relevant.map(compactResource).join("")}</div></section>` : ""}<p class="journey-privacy">Tento sprievodca nenahrádza individuálne odborné posúdenie. Pri bezprostrednom ohrození volajte 112 alebo 155.</p><button type="button" class="button button-soft" id="learning-close">Zavrieť</button></div>`;
   const dialog = $("#journey-dialog");
   if (!dialog.open) dialog.showModal();
-  $("[data-learning-step]", $("#journey-content")).forEach((input) => input.addEventListener("change", () => {
+  $$("[data-learning-step]", $("#journey-content")).forEach((input) => input.addEventListener("change", () => {
     const step = Number(input.dataset.learningStep);
     if (input.checked) done.add(step); else done.delete(step);
     state.learningProgress[slug] = done;
