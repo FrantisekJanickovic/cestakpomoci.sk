@@ -56,3 +56,21 @@ Samostatný projekt `cestakpomoci-staging` bol vytvorený na používateľovu ž
 3. V administrátorskom SQL Editore over konkrétne `auth.users.id` a až potom pridaj používateľa do `public.admin_users`. Nepreber UUID ani e-mail od neoverených osôb.
 4. V sekcii Vercel Environment Variables vytvor uvedené produkčné hodnoty, serverový secret key neukladaj do GitHubu alebo klientského JS.
 5. Zlúč iba testovaný a schválený commit do `main`, nasadzuj na produkciu a otestuj s demo ambulanciou. Žiadne linky reálnych ambulancií zatiaľ nevydávaj.
+
+## 12. 11. 2026 — Vercel konfigurácia a povinné MFA
+
+V Vercel production environment boli nastavené:
+- `ADMIN_ENABLED=false` — explicitný kill switch; **nemení sa bez úplnej kontroly**.
+- `ADMIN_ENVIRONMENT=production`.
+- `ADMIN_APP_ORIGIN=https://cestakpomoci-sk.vercel.app` — overená Vercel projektová doména. Doména `cestakpomoci.sk` nie je aktuálne pripojená k tomuto Vercel projektu.
+- `ADMIN_SUPABASE_URL=https://cxopqzxdtxjtuxzatldx.supabase.co`.
+- `ADMIN_SUPABASE_PUBLISHABLE_KEY` — skutočný publishable key uložený ako sensitive.
+- `ADMIN_RATE_LIMIT_SECRET` — novo generovaný 256-bitový náhodný HMAC kľúč uložený ako sensitive.
+
+**Zostáva manuálne:** v Supabase Dashboard → Project Settings → API Keys vytvoriť/nájsť `sb_secret_...` pre príslušný projekt, následne uložiť do Vercel Production `ADMIN_SUPABASE_SECRET_KEY` ako sensitive. Tento kľúč nepatrí do chatu, GitHubu, client-side JS ani dokumentácie. Konektor Supabase poskytuje publishable keys, nie secret keys. Po vytvorení kľúča ponechať kill switch OFF do schváleného merge/deploy a end-to-end testu.
+
+Backend `api/admin-links.js` vyžaduje `aal2` v JWT **overenom službou Supabase Auth**, zhodné `sub`, `iss`, `role` a platný čas expirácie. Frontend `admin.html`/`admin.js` obsahuje prvotné TOTP enrollment, challenge a verify; bez AAL2 dashboard neotvorí. Pri prvom prihlásení správca použije svoju autentifikačnú aplikáciu, naskenuje QR a zadá šesťmiestny kód. MFA prístup stále vyžaduje úspešný produkčný E2E test. Nikdy nevypisovať TOTP secret do logu, tokenu alebo tiketov.
+
+Testované len pomocou simulovaného Supabase MFA a izolovaného Postgres. **Ešte neprebehlo produkčné manuálne TOTP overenie**; aktivácia zostáva zablokovaná.
+
+Príslušné CI: https://github.com/FrantisekJanickovic/cestakpomoci.sk/actions/runs/43286548776 (API a databázové testy SUCCESS).
