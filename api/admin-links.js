@@ -12,7 +12,7 @@ function config() {
   // Refuse to operate unless a completely separate staging database is configured.
   if (process.env.ADMIN_ENVIRONMENT !== "staging" || !/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(base)
       || !publicKey || !secretKey || !/^https:\/\/[a-z0-9.-]+$/.test(origin)
-      || base === prod || base.includes("cxopqzxdtxjtuxzatldx") || origin.includes("REPLACE")) return null;
+      || process.env.VERCEL_ENV === "production" || base !== prod || base.includes("cxopqzxdtxjtuxzatldx") || origin.includes("REPLACE")) return null;
   return { base, publicKey, secretKey, origin };
 }
 function sbHeaders(key, extra={}) { return { apikey:key, Authorization:"Bearer "+key, ...extra }; }
