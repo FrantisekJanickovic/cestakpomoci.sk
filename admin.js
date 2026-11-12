@@ -96,11 +96,22 @@ async function verifyMfa(event){
   await showDashboard();
  }catch(e){showStatus(e.message);}
 }
-function signout(){
+async function signout(){
+ const oldToken=sessionToken;
  sessionToken=null;mfaFactorId=null;
  $("#dashboard").hidden=true;$("#mfa").hidden=true;$("#login").hidden=false;
  $("#password").value="";$("#mfa-code").value="";
  $("#mfa-secret").textContent="";$("#mfa-qr").removeAttribute("src");
+ showStatus("Odhlasujem…");
+ if(oldToken&&settings){
+  try{
+   const result=await fetch(settings.url+"/auth/v1/logout",{
+    method:"POST",cache:"no-store",
+    headers:{apikey:settings.key,Authorization:"Bearer "+oldToken}
+   });
+   if(!result.ok)throw Error("Signout failed");
+  }catch{showStatus("Prihlasovacie údaje boli z prehliadača odstránené, ale vzdialené odhlásenie zlyhalo.");return;}
+ }
  showStatus("Odhlásený.");
 }
 async function adminRequest(method,body){
