@@ -48,6 +48,43 @@ const assert = require("node:assert/strict");
     assert.equal(await adminPage.locator("#dashboard").isHidden(), true);
     assert.deepEqual(adminErrors, []);
     await adminPage.close();
+    // Simulate a dedicated staging backend to verify real admin UI interactions.
+    const simulated = await browser.newPage();
+    const simulatedErrors = [];
+    simulated.on("pageerror", e => simulatedErrors.push(e.message));
+    let issues = 0;
+    await simulated.route("**/api/admin-config", route=>route.fulfill({
+      status:200,contentType:"application/json",
+      body:JSON.stringify({url:"https://ci-staging-123.supabase.co",key:"public-test"})
+    }));
+    await simulated.route("https://ci-staging-123.supabase.co/auth/v1/token?grant_type=password", route=>route.fulfill({
+      status:200,contentType:"application/json",
+      headers:{"access-control-allow-origin":"*"},
+      body:JSON.stringify({access_token:"test-bearer-token"})
+    }));
+    await simulated.route("**/api/admin-links", route=>{
+      if(route.request().method()==="GET") return route.fulfill({status:200,contentType:"application/json",
+        body:JSON.stringify({ambulances:[{external_id:"clinic-test",name:"Test ambulancia",city:"Bratislava",capacity_status:"unknown",link_status:"not_issued"}]})});
+      issues++;
+      return route.fulfill({status:200,contentType:"application/json",
+        body:JSON.stringify({ok:true,action:"issue",ambulance:"clinic-test",link:"https://staging.example.com/#kapacita/clinic-test/"+ "a".repeat(64)})});
+    });
+    await simulated.goto("http://127.0.0.1:4173/admin.html", {waitUntil:"load"});
+    assert.equal(await simulated.locator("#login").isVisible(),true);
+    await simulated.locator("#email").fill("admin@example.com");
+    await simulated.locator("#password").fill("test-password");
+    await simulated.locator("#login-form button").click();
+    await simulated.locator("#dashboard").waitFor({state:"visible"});
+    assert.equal(await simulated.locator("#clinics tr").count(),1);
+    simulated.once("dialog",dialog=>dialog.accept());
+    await simulated.locator("#clinics tr button").first().click();
+    await simulated.locator("#secret-dialog").waitFor({state:"visible"});
+    assert.match(await simulated.locator("#secret-link").inputValue(),/#kapacita\/clinic-test\/[a-f0-9]{64}$/);
+    assert.equal(issues,1);
+    await simulated.locator("#close-secret").click();
+    assert.equal(await simulated.locator("#secret-link").inputValue(),"");
+    assert.deepEqual(simulatedErrors,[]);
+    await simulated.close();
     console.log("Browser smoke tests passed: questionnaire, navigation, crisis route, learning paths, locked staging admin.");
 
   } finally {
