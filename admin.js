@@ -1,5 +1,5 @@
 // Intentionally session-memory only: no token persistence, cookies or localStorage.
-let sessionToken = null, settings = null, pending = false;
+let sessionToken = null, settings = null, pending = false, mfaFactorId = null;
 const $ = s=>document.querySelector(s);
 function showStatus(text){$("#status").textContent=text;}
 function safeText(text){return document.createTextNode(String(text??""));}
@@ -14,6 +14,43 @@ async function init(){
   $("#login").hidden=false;
  }catch(e){showStatus(e.message);}
 }
+function aal(token){
+ try { return JSON.parse(atob(token.split(".")[1].replace(/-/g,"+").replace(/_/g,"/"))).aal; }
+ catch { return null; }
+}
+async function authRequest(method,path,body){
+ const response=await fetch(settings.url+"/auth/v1"+path,{
+  method,cache:"no-store",
+  headers:{apikey:settings.key,Authorization:"Bearer "+sessionToken,...(body?{"Content-Type":"application/json"}:{})},
+  ...(body?{body:JSON.stringify(body)}:{})
+ });
+ const data=await response.json().catch(()=>({}));
+ if(!response.ok) throw Error(data.msg||data.message||data.error_description||"Nepodarilo sa overiť druhý faktor.");
+ return data;
+}
+async function showDashboard(){
+ await refresh();
+ $("#mfa").hidden=true;
+ $("#login").hidden=true;
+ $("#dashboard").hidden=false;
+ showStatus("Prihlásený správca s dvojfaktorovým overením.");
+}
+async function beginMfa(){
+ if(aal(sessionToken)==="aal2")return showDashboard();
+ const user=await authRequest("GET","/user");
+ const factor=(user.factors||[]).find(f=>f.factor_type==="totp"&&f.status==="verified");
+ mfaFactorId=factor?.id||null;
+ $("#mfa").hidden=false;
+ $("#login").hidden=true;
+ $("#mfa-code").value="";
+ $("#mfa-setup").hidden=!!factor;
+ $("#mfa-enroll").hidden=false;
+ $("#mfa-secret-box").hidden=true;
+ $("#mfa-description").textContent=factor
+  ?"Zadaj šesťmiestny kód z autentifikátora."
+  :"Pred prvým prihlásením nastav dvojfaktorové overenie. Po skenovaní QR kódu zadaj vygenerovaný kód.";
+ showStatus("Na vstup do administrácie je povinné dvojfaktorové overenie.");
+}
 async function login(event){
  event.preventDefault();
  showStatus("Overujem prihlásenie…");
@@ -26,10 +63,45 @@ async function login(event){
   $("#password").value="";
   if(!response.ok||!data.access_token)throw Error("Nesprávne prihlasovacie údaje.");
   sessionToken=data.access_token;
-  await refresh();
-  $("#login").hidden=true;$("#dashboard").hidden=false;
-  showStatus("Prihlásený správca.");
- }catch(e){sessionToken=null;showStatus(e.message);}
+  await beginMfa();
+ }catch(e){sessionToken=null;$("#mfa").hidden=true;$("#login").hidden=false;showStatus(e.message);}
+}
+async function enrollMfa(){
+ try{
+  $("#mfa-enroll").disabled=true;
+  const data=await authRequest("POST","/factors",{factor_type:"totp",friendly_name:"Cesta k pomoci"});
+  if(!data.id||!data.totp?.qr_code||!data.totp?.secret)throw Error("Supabase neposlal údaje na aktiváciu autentifikátora.");
+  mfaFactorId=data.id;
+  const qr=data.totp.qr_code;
+  // Render only an SVG image in a data URL; never inject remote SVG markup into the DOM.
+  $("#mfa-qr").src=qr.startsWith("data:image/svg+xml")?qr:"data:image/svg+xml;charset=utf-8,"+encodeURIComponent(qr);
+  $("#mfa-secret").textContent=data.totp.secret;
+  $("#mfa-secret-box").hidden=false;
+  showStatus("Naskenuj QR kód a zadaj šesťmiestny kód.");
+ }catch(e){$("#mfa-enroll").disabled=false;showStatus(e.message);}
+}
+async function verifyMfa(event){
+ event.preventDefault();
+ const code=$("#mfa-code").value.trim();
+ if(!/^[0-9]{6}$/.test(code)||!mfaFactorId)return showStatus("Najprv nastav autentifikátor a zadaj platný šesťmiestny kód.");
+ try{
+  const challenge=await authRequest("POST","/factors/"+encodeURIComponent(mfaFactorId)+"/challenge",{});
+  if(!challenge.id)throw Error("Overovacia výzva nebola vytvorená.");
+  const verified=await authRequest("POST","/factors/"+encodeURIComponent(mfaFactorId)+"/verify",{challenge_id:challenge.id,code});
+  $("#mfa-code").value="";
+  if(!verified.access_token||aal(verified.access_token)!=="aal2")throw Error("Dvojfaktorové overenie nebolo dokončené.");
+  sessionToken=verified.access_token;
+  $("#mfa-secret").textContent="";
+  $("#mfa-qr").removeAttribute("src");
+  await showDashboard();
+ }catch(e){showStatus(e.message);}
+}
+function signout(){
+ sessionToken=null;mfaFactorId=null;
+ $("#dashboard").hidden=true;$("#mfa").hidden=true;$("#login").hidden=false;
+ $("#password").value="";$("#mfa-code").value="";
+ $("#mfa-secret").textContent="";$("#mfa-qr").removeAttribute("src");
+ showStatus("Odhlásený.");
 }
 async function adminRequest(method,body){
  const response=await fetch("/api/admin-links",{
@@ -76,7 +148,10 @@ async function operate(a,action){
  }catch(e){$("#notice").textContent=e.message;}finally{pending=false;}
 }
 $("#login-form").addEventListener("submit",login);
-$("#signout").addEventListener("click",()=>{sessionToken=null;$("#dashboard").hidden=true;$("#login").hidden=false;$("#password").value="";showStatus("Odhlásený.");});
+$("#signout").addEventListener("click",signout);
+$("#mfa-cancel").addEventListener("click",signout);
+$("#mfa-enroll").addEventListener("click",enrollMfa);
+$("#mfa-form").addEventListener("submit",verifyMfa);
 $("#close-secret").addEventListener("click",()=>{$("#secret-dialog").close();$("#secret-link").value="";});
 $("#copy-link").addEventListener("click",async()=>{try{await navigator.clipboard.writeText($("#secret-link").value);$("#notice").textContent="Odkaz skopírovaný.";}catch{$("#secret-link").select();$("#notice").textContent="Označený odkaz skopíruj ručne."; }});
 init();
