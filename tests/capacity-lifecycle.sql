@@ -69,7 +69,7 @@ do $$begin
 end$$;
 
 -- Expired link must not authorize any update.
-update public.ambulances set capacity_token_expires_at=now()-interval '1 hour' where external_id='test-1';
+update public.ambulances set capacity_token_issued_at=now()-interval '31 days', capacity_token_expires_at=now()-interval '1 hour' where external_id='test-1';
 set role anon;
 update public.ambulances set capacity_status='full', accepts_new=false where external_id='test-1';
 reset role;
