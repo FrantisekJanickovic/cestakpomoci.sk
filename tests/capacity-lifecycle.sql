@@ -132,3 +132,43 @@ do $$begin
   end if;
 end$$;
 select 'capacity lifecycle SQL integration tests passed' as result;
+
+
+-- Persistent limiter tests; all rows and roles here are disposable CI fixtures.
+\i supabase/admin-rate-limit.sql
+do $$begin
+  if has_function_privilege('anon','public.consume_admin_rate_limit(text,integer,integer)','execute')
+    or has_function_privilege('authenticated','public.consume_admin_rate_limit(text,integer,integer)','execute') then
+    raise exception 'public role can invoke privileged rate limiter';
+  end if;
+  if not has_function_privilege('service_role','public.consume_admin_rate_limit(text,integer,integer)','execute') then
+    raise exception 'service role cannot invoke rate limiter';
+  end if;
+end$$;
+set role service_role;
+select public.consume_admin_rate_limit(repeat('a',64),2,60) as first_allowed \gset
+\if :first_allowed
+\else
+\echo 'First rate limit call was denied'
+\quit 1
+\endif
+select public.consume_admin_rate_limit(repeat('a',64),2,60) as second_allowed \gset
+\if :second_allowed
+\else
+\echo 'Second rate limit call was denied'
+\quit 1
+\endif
+select not public.consume_admin_rate_limit(repeat('a',64),2,60) as third_denied \gset
+\if :third_denied
+\else
+\echo 'Third call exceeded the limit but was accepted'
+\quit 1
+\endif
+select public.consume_admin_rate_limit(repeat('b',64),2,60) as distinct_key_allowed \gset
+\if :distinct_key_allowed
+\else
+\echo 'Distinct limit key was blocked'
+\quit 1
+\endif
+reset role;
+select 'admin rate limiter integration tests passed' as result;
