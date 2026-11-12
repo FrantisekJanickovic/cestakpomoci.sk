@@ -1,5 +1,5 @@
 // Privileged clinic link administration. Disabled until explicitly enabled and scoped to the correct deployment.
-const { randomBytes, createHash } = require("node:crypto");
+const { randomBytes, createHash, createHmac } = require("node:crypto");
 const SAFE_ID = /^[\p{L}\p{N}._-]{2,128}$/u;
 const NO_STORE = { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" };
 const TIMEOUT = 8000;
@@ -8,6 +8,7 @@ function config() {
   const publicKey = process.env.ADMIN_SUPABASE_PUBLISHABLE_KEY || "";
   const secretKey = process.env.ADMIN_SUPABASE_SECRET_KEY || "";
   const origin = process.env.ADMIN_APP_ORIGIN || "";
+  const limitSecret = process.env.ADMIN_RATE_LIMIT_SECRET || "";
   const prod = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
   // Fail closed: production administration may only run on production using the original project.
   // Preview administration, if separately enabled, must never write to the production database.
@@ -17,11 +18,11 @@ function config() {
   if (process.env.ADMIN_ENABLED !== "true"
       || !["production", "preview"].includes(mode) || deployed !== mode
       || !/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(base)
-      || !publicKey || !secretKey || !/^https:\/\/[a-z0-9.-]+$/.test(origin)
+      || !publicKey || !secretKey || limitSecret.length < 32 || !/^https:\/\/[a-z0-9.-]+$/.test(origin)
       || base !== prod || origin.includes("REPLACE")
       || (mode === "production" && !isProdDatabase)
       || (mode === "preview" && isProdDatabase)) return null;
-  return { base, publicKey, secretKey, origin };
+  return { base, publicKey, secretKey, origin, limitSecret };
 }
 function sbHeaders(key, extra={}) { return { apikey:key, Authorization:"Bearer "+key, ...extra }; }
 async function requestJson(url, options) {
@@ -30,6 +31,35 @@ async function requestJson(url, options) {
   return { ok:result.ok, status:result.status, data:json };
 }
 function err(res,status,message) { return res.status(status).json({error:message}); }
+
+/**
+ * Use only a platform-provided IP value (or local socket fallback).
+ * All caller identifiers are HMACed before leaving this function.
+ */
+function clientAddress(req) {
+  const platform = req.headers?.["x-vercel-forwarded-for"];
+  if (typeof platform === "string" && platform.length < 256) {
+    const address = platform.split(",")[0].trim();
+    if (/^[a-f0-9:.]{3,64}$/i.test(address)) return address;
+  }
+  const socket = req.socket?.remoteAddress;
+  return typeof socket === "string" && /^[a-f0-9:.]{3,64}$/i.test(socket) ? socket : null;
+}
+async function allowRequest(req,c) {
+  const address = clientAddress(req);
+  // Do not let an absent client identifier bypass rate limiting.
+  if (!address) return false;
+  const bucket = req.method === "POST" ? "admin-mutate" : "admin-list";
+  const digest = createHmac("sha256", c.limitSecret).update(bucket+":"+address).digest("hex");
+  const allowed = await requestJson(c.base+"/rest/v1/rpc/consume_admin_rate_limit", {
+    method:"POST",
+    headers:sbHeaders(c.secretKey,{"Content-Type":"application/json"}),
+    body:JSON.stringify({p_key:digest,p_limit:req.method==="POST"?5:30,p_window_seconds:60})
+  });
+  if(!allowed.ok || typeof allowed.data !== "boolean") throw Error("Rate limiting unavailable");
+  return allowed.data;
+}
+
 async function authenticate(req,c) {
   const authorization = req.headers?.authorization || "";
   if (!/^Bearer [A-Za-z0-9._~-]{20,4096}$/.test(authorization)) return null;
@@ -46,11 +76,13 @@ module.exports = async function handler(req,res) {
   res.setHeader("Allow","GET, POST");
   if (!["GET","POST"].includes(req.method)) return err(res,405,"Method not allowed");
   const c=config();
-  if (!c) return err(res,503,"Staging administration is not configured");
+  if (!c) return err(res,503,"Administrácia nie je nakonfigurovaná");
   // Authentication uses an explicit bearer token; never browser cookies.
   // Mutations are also limited to the configured admin origin.
   if (req.method==="POST" && req.headers.origin !== c.origin) return err(res,403,"Invalid request origin");
   try {
+    const isAllowed=await allowRequest(req,c);
+    if (!isAllowed) return err(res,429,"Príliš veľa požiadaviek. Skúste to o minútu.");
     const userId=await authenticate(req,c);
     if (!userId) return err(res,403,"Administrator access required");
     if (req.method==="GET") {
