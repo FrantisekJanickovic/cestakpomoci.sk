@@ -57,10 +57,28 @@ const assert = require("node:assert/strict");
       status:200,contentType:"application/json",
       body:JSON.stringify({url:"https://ci-staging-123.supabase.co",key:"public-test"})
     }));
+    const jwt=(aal)=>["eyJhbGciOiJFUzI1NiJ9",
+      Buffer.from(JSON.stringify({aal,sub:"11111111-1111-4111-8111-111111111111",
+        role:"authenticated",exp:Math.floor(Date.now()/1000)+3600})).toString("base64url"),
+      "mock-signature"].join(".");
+    const cors={"access-control-allow-origin":"*"};
     await simulated.route("https://ci-staging-123.supabase.co/auth/v1/token?grant_type=password", route=>route.fulfill({
-      status:200,contentType:"application/json",
-      headers:{"access-control-allow-origin":"*"},
-      body:JSON.stringify({access_token:"test-bearer-token"})
+      status:200,contentType:"application/json",headers:cors,
+      body:JSON.stringify({access_token:jwt("aal1")})
+    }));
+    await simulated.route("https://ci-staging-123.supabase.co/auth/v1/user", route=>route.fulfill({
+      status:200,contentType:"application/json",headers:cors,
+      body:JSON.stringify({factors:[]})
+    }));
+    await simulated.route("https://ci-staging-123.supabase.co/auth/v1/factors", route=>route.fulfill({
+      status:200,contentType:"application/json",headers:cors,
+      body:JSON.stringify({id:"factor-id",totp:{qr_code:"<svg xmlns='http://www.w3.org/2000/svg'/>",secret:"TEST-MFA-SECRET"}})
+    }));
+    await simulated.route("https://ci-staging-123.supabase.co/auth/v1/factors/factor-id/challenge", route=>route.fulfill({
+      status:200,contentType:"application/json",headers:cors,body:JSON.stringify({id:"challenge-id"})
+    }));
+    await simulated.route("https://ci-staging-123.supabase.co/auth/v1/factors/factor-id/verify", route=>route.fulfill({
+      status:200,contentType:"application/json",headers:cors,body:JSON.stringify({access_token:jwt("aal2")})
     }));
     await simulated.route("**/api/admin-links", route=>{
       if(route.request().method()==="GET") return route.fulfill({status:200,contentType:"application/json",
@@ -74,7 +92,15 @@ const assert = require("node:assert/strict");
     await simulated.locator("#email").fill("admin@example.com");
     await simulated.locator("#password").fill("test-password");
     await simulated.locator("#login-form button").click();
+    await simulated.locator("#mfa").waitFor({state:"visible"});
+    assert.equal(await simulated.locator("#dashboard").isHidden(),true);
+    await simulated.locator("#mfa-enroll").click();
+    await simulated.locator("#mfa-secret-box").waitFor({state:"visible"});
+    assert.equal(await simulated.locator("#mfa-secret").innerText(),"TEST-MFA-SECRET");
+    await simulated.locator("#mfa-code").fill("123456");
+    await simulated.locator("#mfa-form button").click();
     await simulated.locator("#dashboard").waitFor({state:"visible"});
+    assert.equal(await simulated.locator("#mfa-secret").innerText(),"");
     assert.equal(await simulated.locator("#clinics tr").count(),1);
     simulated.once("dialog",dialog=>dialog.accept());
     await simulated.locator("#clinics tr button").first().click();
