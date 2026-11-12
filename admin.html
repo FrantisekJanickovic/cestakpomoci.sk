@@ -16,6 +16,26 @@
 <h2>Prihlásenie správcu</h2><p>Prihlasovacie údaje spravuje Supabase Auth. Prístup majú iba ručne schválení správcovia.</p>
 <form id="login-form"><label>E-mail<input id="email" type="email" autocomplete="username" required></label><label>Heslo<input id="password" type="password" autocomplete="current-password" required></label><button type="submit">Prihlásiť sa</button></form>
 </section>
+<section id="mfa" hidden class="panel">
+<h2>Dvojfaktorové overenie</h2>
+<p id="mfa-description">Použi šesťmiestny kód z autentifikačnej aplikácie.</p>
+<div id="mfa-setup" hidden>
+  <p>Najprv pridaj účet do autentifikátora (napríklad Google Authenticator alebo 1Password). QR kód a tajomstvo nikomu neposielaj.</p>
+  <button type="button" id="mfa-enroll">Vytvoriť QR kód</button>
+  <div id="mfa-secret-box" hidden>
+    <img id="mfa-qr" width="200" height="200" alt="QR kód na aktiváciu dvojfaktorového overenia">
+    <p>Ak nemôžeš skenovať, zadaj tento kľúč do aplikácie:</p>
+    <code id="mfa-secret"></code>
+  </div>
+</div>
+<form id="mfa-form">
+  <label>Kód z autentifikátora
+    <input id="mfa-code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required>
+  </label>
+  <button type="submit">Overiť kód a vstúpiť</button>
+</form>
+<button type="button" id="mfa-cancel" class="soft">Zrušiť prihlásenie</button>
+</section>
 <section id="dashboard" hidden>
 <div class="toolbar"><h2>Ambulancie</h2><button type="button" id="signout" class="soft">Odhlásiť sa</button></div>
 <p>Vydanie nového odkazu okamžite ruší starý. Odkaz bude zobrazený iba raz.</p>
