@@ -40,3 +40,19 @@ Automatické GitHub CI testy: `node --test`, Playwright browser smoke a izolovan
 
 ## Poznámka k nákladom a stagingu
 Samostatný projekt `cestakpomoci-staging` bol vytvorený na používateľovu žiadosť v predchádzajúcom kroku; používateľ ho následne sám pozastavil. Produkčný zdroj pravdy zostáva `volna-ambulancia`; žiadna migrácia údajov do stagingu sa nerobila.
+
+## Dodatočná ochrana administrátorského API
+- Migrácia `privileged_admin_api_rate_limit`: `public.admin_api_rate_limits` so zapnutým RLS a server-only funkcia `public.consume_admin_rate_limit`.
+- Server používa HMAC klientovej IP adresy (so serverovým tajomstvom), nikde neukladá samotnú adresu ani bearer token.
+- Maximálne 5 POST operácií/minútu a 30 GET/minútu na klienta. Pri prekročení vráti 429, pri chybe limitera 502.
+- Nevyhnutná produkčná Vercel env `ADMIN_RATE_LIMIT_SECRET` s náhodnou hodnotou **najmenej 32 znakov**; musí byť `sensitive` alebo `encrypted`.
+- Zostáva nastaviť **Supabase Auth rate limits a MFA** (prihlasovanie prebieha cez Supabase Auth priamo z prehliadača, nie cez admin-links API).
+- Bez aktívneho admin účtu a kompletných produkčných env vars je správcovské rozhranie zámerne vypnuté.
+- Stav pri overení: 0 v `auth.users` a 0 v `public.admin_users`; oprávnenie nemožno bezpečne udeliť bez overenej identity.
+
+## Bezpečné pridelenie prvého admin účtu
+1. V `https://supabase.com/dashboard/project/cxopqzxdtxjtuxzatldx/auth/users` vytvor/invituj konkrétneho správcu cez Auth (bez publikovania hesla v chate).
+2. Over e-mail a identitu vlastníka účtu; zapni MFA a obmedz self-signup, ak to projekt nepotrebuje.
+3. V administrátorskom SQL Editore over konkrétne `auth.users.id` a až potom pridaj používateľa do `public.admin_users`. Nepreber UUID ani e-mail od neoverených osôb.
+4. V sekcii Vercel Environment Variables vytvor uvedené produkčné hodnoty, serverový secret key neukladaj do GitHubu alebo klientského JS.
+5. Zlúč iba testovaný a schválený commit do `main`, nasadzuj na produkciu a otestuj s demo ambulanciou. Žiadne linky reálnych ambulancií zatiaľ nevydávaj.
