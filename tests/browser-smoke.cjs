@@ -66,6 +66,11 @@ const assert = require("node:assert/strict");
       status:200,contentType:"application/json",headers:cors,
       body:JSON.stringify({access_token:jwt("aal1")})
     }));
+    let logoutCalls=0;
+    await simulated.route("https://ci-staging-123.supabase.co/auth/v1/logout", route=>{
+      logoutCalls++;
+      return route.fulfill({status:204,headers:{"access-control-allow-origin":"*"}});
+    });
     await simulated.route("https://ci-staging-123.supabase.co/auth/v1/user", route=>route.fulfill({
       status:200,contentType:"application/json",headers:cors,
       body:JSON.stringify({factors:[]})
@@ -109,6 +114,11 @@ const assert = require("node:assert/strict");
     assert.equal(issues,1);
     await simulated.locator("#close-secret").click();
     assert.equal(await simulated.locator("#secret-link").inputValue(),"");
+    await simulated.locator("#signout").click();
+    await simulated.waitForFunction(() => document.querySelector("#status").textContent==="Odhlásený.");
+    assert.equal(logoutCalls,1);
+    assert.equal(await simulated.locator("#dashboard").isHidden(),true);
+    assert.equal(await simulated.locator("#login").isVisible(),true);
     assert.deepEqual(simulatedErrors,[]);
     await simulated.close();
     console.log("Browser smoke tests passed: questionnaire, navigation, crisis route, learning paths, locked staging admin.");
