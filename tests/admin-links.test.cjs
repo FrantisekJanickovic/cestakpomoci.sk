@@ -4,7 +4,9 @@ const api = require("../api/admin-links.js");
 const configHandler = require("../api/admin-config.js");
 const ORIGINAL = {...process.env};
 function setEnv(){
- process.env.ADMIN_ENVIRONMENT="staging";
+ process.env.ADMIN_ENABLED="true";
+ process.env.ADMIN_ENVIRONMENT="preview";
+ process.env.VERCEL_ENV="preview";
  process.env.ADMIN_SUPABASE_URL="https://ci-staging-123.supabase.co";
  process.env.ADMIN_SUPABASE_PUBLISHABLE_KEY="public-test-key";
  process.env.ADMIN_SUPABASE_SECRET_KEY="server-test-key";
@@ -32,7 +34,7 @@ async function mockFetch(url,options={}){
  }
  throw Error("Unexpected upstream request");
 }
-test("admin API is unavailable without staging configuration",async()=>{
+test("admin API is unavailable without explicit activation",async()=>{
  const r=await invoke(api,"GET");
  assert.equal(r.code,503);
  assert.equal(r.headers["Cache-Control"],"no-store");
@@ -111,4 +113,32 @@ test("admin endpoints are disabled on production deployments",async()=>{
  assert.equal((await invoke(api,"GET")).code,503);
  assert.equal((await invoke(configHandler,"GET")).code,503);}
  finally{process.env=old;}
+});
+
+test("production DB is permitted only on configured production deployment",async()=>{
+ const old={...process.env},saved=global.fetch;
+ try{
+  setEnv();
+  process.env.ADMIN_ENVIRONMENT="production";
+  process.env.VERCEL_ENV="production";
+  process.env.ADMIN_SUPABASE_URL="https://cxopqzxdtxjtuxzatldx.supabase.co";
+  process.env.NEXT_PUBLIC_SUPABASE_URL=process.env.ADMIN_SUPABASE_URL;
+  process.env.ADMIN_APP_ORIGIN="https://cestakpomoci.sk";
+  requests.length=0;global.fetch=mockFetch;
+  const r=await invoke(api,"GET",null,{authorization:token});
+  assert.equal(r.code,200);
+  assert.equal((await invoke(configHandler,"GET")).code,200);
+ }finally{process.env=old;global.fetch=saved;}
+});
+test("production admin fails closed without explicit enable flag",async()=>{
+ const old={...process.env},saved=global.fetch;
+ try{
+  setEnv();process.env.ADMIN_ENVIRONMENT="production";process.env.VERCEL_ENV="production";
+  process.env.ADMIN_SUPABASE_URL="https://cxopqzxdtxjtuxzatldx.supabase.co";
+  process.env.NEXT_PUBLIC_SUPABASE_URL=process.env.ADMIN_SUPABASE_URL;
+  process.env.ADMIN_ENABLED="false";
+  requests.length=0;global.fetch=mockFetch;
+  assert.equal((await invoke(api,"GET",null,{authorization:token})).code,503);
+  assert.equal(requests.length,0);
+ }finally{process.env=old;global.fetch=saved;}
 });
