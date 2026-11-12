@@ -1,4 +1,4 @@
-// Staging-only clinic link administration. Never connect this API to production.
+// Privileged clinic link administration. Disabled until explicitly enabled and scoped to the correct deployment.
 const { randomBytes, createHash } = require("node:crypto");
 const SAFE_ID = /^[\p{L}\p{N}._-]{2,128}$/u;
 const NO_STORE = { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" };
@@ -9,10 +9,18 @@ function config() {
   const secretKey = process.env.ADMIN_SUPABASE_SECRET_KEY || "";
   const origin = process.env.ADMIN_APP_ORIGIN || "";
   const prod = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-  // Refuse to operate unless a completely separate staging database is configured.
-  if (process.env.ADMIN_ENVIRONMENT !== "staging" || !/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(base)
+  // Fail closed: production administration may only run on production using the original project.
+  // Preview administration, if separately enabled, must never write to the production database.
+  const mode = process.env.ADMIN_ENVIRONMENT;
+  const deployed = process.env.VERCEL_ENV;
+  const isProdDatabase = base === "https://cxopqzxdtxjtuxzatldx.supabase.co";
+  if (process.env.ADMIN_ENABLED !== "true"
+      || !["production", "preview"].includes(mode) || deployed !== mode
+      || !/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(base)
       || !publicKey || !secretKey || !/^https:\/\/[a-z0-9.-]+$/.test(origin)
-      || process.env.VERCEL_ENV === "production" || base !== prod || base.includes("cxopqzxdtxjtuxzatldx") || origin.includes("REPLACE")) return null;
+      || base !== prod || origin.includes("REPLACE")
+      || (mode === "production" && !isProdDatabase)
+      || (mode === "preview" && isProdDatabase)) return null;
   return { base, publicKey, secretKey, origin };
 }
 function sbHeaders(key, extra={}) { return { apikey:key, Authorization:"Bearer "+key, ...extra }; }
