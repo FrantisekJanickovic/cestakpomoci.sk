@@ -9,7 +9,7 @@ function setEnv(){
  process.env.ADMIN_SUPABASE_PUBLISHABLE_KEY="public-test-key";
  process.env.ADMIN_SUPABASE_SECRET_KEY="server-test-key";
  process.env.ADMIN_APP_ORIGIN="https://staging.example.com";
- process.env.NEXT_PUBLIC_SUPABASE_URL="https://cxopqzxdtxjtuxzatldx.supabase.co";
+ process.env.NEXT_PUBLIC_SUPABASE_URL="https://ci-staging-123.supabase.co";
 }
 function response(){
  return {code:200,headers:{},body:null,setHeader(k,v){this.headers[k]=v;return this;},
@@ -39,7 +39,7 @@ test("admin API is unavailable without staging configuration",async()=>{
 });
 test("production Supabase project is never accepted as staging",async()=>{
  const old={...process.env};
- try{setEnv();process.env.ADMIN_SUPABASE_URL=process.env.NEXT_PUBLIC_SUPABASE_URL;
+ try{setEnv();process.env.ADMIN_SUPABASE_URL="https://cxopqzxdtxjtuxzatldx.supabase.co";
  assert.equal((await invoke(api,"GET")).code,503);}
  finally{process.env=old;}
 });
@@ -97,4 +97,18 @@ test("revoke sends null token fields and never returns a link",async()=>{
  const data=JSON.parse(requests.find(x=>x.options.method==="PATCH").options.body);
  assert.deepEqual([data.update_token_hash,data.capacity_token_issued_at,data.capacity_token_expires_at],[null,null,null]);}
  finally{process.env=old;global.fetch=saved;}
+});
+
+test("staging admin cannot target a different project than preview API",async()=>{
+ const old={...process.env};
+ try{setEnv();process.env.NEXT_PUBLIC_SUPABASE_URL="https://some-other-staging.supabase.co";
+ assert.equal((await invoke(api,"GET")).code,503);}
+ finally{process.env=old;}
+});
+test("admin endpoints are disabled on production deployments",async()=>{
+ const old={...process.env};
+ try{setEnv();process.env.VERCEL_ENV="production";
+ assert.equal((await invoke(api,"GET")).code,503);
+ assert.equal((await invoke(configHandler,"GET")).code,503);}
+ finally{process.env=old;}
 });
