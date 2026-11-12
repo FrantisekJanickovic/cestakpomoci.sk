@@ -65,6 +65,18 @@ async function authenticate(req,c) {
   if (!/^Bearer [A-Za-z0-9._~-]{20,4096}$/.test(authorization)) return null;
   const auth = await requestJson(c.base+"/auth/v1/user", {headers:sbHeaders(c.publicKey,{Authorization:authorization})});
   if (!auth.ok || !auth.data || !/^[0-9a-f-]{36}$/i.test(auth.data.id || "")) return null;
+  // Supabase Auth has validated the presented bearer session. Validate its claims
+  // against that verified identity before any privileged database access.
+  let claims;
+  try {
+    const rawJwt=authorization.slice(7);
+    const parts=rawJwt.split(".");
+    if(parts.length!==3) return null;
+    claims=JSON.parse(Buffer.from(parts[1],"base64url").toString("utf8"));
+  } catch { return null; }
+  if (claims.aal!=="aal2" || claims.sub!==auth.data.id
+      || claims.role!=="authenticated" || claims.iss!==c.base+"/auth/v1"
+      || !Number.isFinite(claims.exp) || claims.exp*1000<=Date.now()) return null;
   const check = await requestJson(c.base+"/rest/v1/admin_users?select=user_id&user_id=eq."+encodeURIComponent(auth.data.id)+"&active=eq.true&limit=1",{
     headers:sbHeaders(c.secretKey)
   });
