@@ -38,7 +38,18 @@ const assert = require("node:assert/strict");
     await firstStep.check();
     assert.equal(await page.locator('[data-learning-step="0"]').isChecked(), true);
     assert.deepEqual(jsErrors, [], "JavaScript exceptions: " + jsErrors.join("; "));
-    console.log("Browser smoke tests passed: questionnaire, navigation, crisis route, six learning paths, progress.");
+    // Staging admin is intentionally inactive without separate Supabase configuration.
+    const adminPage = await browser.newPage();
+    const adminErrors = [];
+    adminPage.on("pageerror", err => adminErrors.push(err.message));
+    await adminPage.goto("http://127.0.0.1:4173/admin.html", { waitUntil:"load" });
+    await adminPage.waitForFunction(() => document.querySelector("#status").textContent.includes("není") || document.querySelector("#status").textContent.includes("nie je") || document.querySelector("#status").textContent.includes("nie je nakonfigurovaná") || document.querySelector("#status").textContent.includes("not configured"));
+    assert.equal(await adminPage.locator("#login").isHidden(), true);
+    assert.equal(await adminPage.locator("#dashboard").isHidden(), true);
+    assert.deepEqual(adminErrors, []);
+    await adminPage.close();
+    console.log("Browser smoke tests passed: questionnaire, navigation, crisis route, learning paths, locked staging admin.");
+
   } finally {
     if (browser) await browser.close();
     server.kill();
