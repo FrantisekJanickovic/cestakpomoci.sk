@@ -19,10 +19,22 @@ function response(){
  status(v){this.code=v;return this;},json(v){this.body=v;return this;}};
 }
 async function invoke(handler,method,body,headers={}){
- const res=response();await handler({method,body,headers,socket:{remoteAddress:"127.0.0.1"}},res);return res;
+ const res=response();
+ const actualHeaders=headers.authorization===token?{...headers,authorization:trustedToken()}:headers;
+ await handler({method,body,headers:actualHeaders,socket:{remoteAddress:"127.0.0.1"}},res);
+ return res;
 }
 const token="Bearer "+"x".repeat(40);
 const id="11111111-1111-4111-8111-111111111111";
+function trustedToken(aal="aal2") {
+ const header=Buffer.from(JSON.stringify({alg:"ES256",typ:"JWT"})).toString("base64url");
+ const payload=Buffer.from(JSON.stringify({
+  sub:id,aal,role:"authenticated",
+  iss:process.env.ADMIN_SUPABASE_URL+"/auth/v1",
+  exp:Math.floor(Date.now()/1000)+3600
+ })).toString("base64url");
+ return "Bearer "+header+"."+payload+".testsignature";
+}
 const clinic="clinic-test";
 const requests=[];
 async function mockFetch(url,options={}){
@@ -189,4 +201,27 @@ test("no limiter secret means admin is disabled",async()=>{
   assert.equal((await invoke(api,"GET")).code,503);
   assert.equal((await invoke(configHandler,"GET")).code,503);
  }finally{process.env=old;}
+});
+
+test("AAL1 session is not privileged even with a valid Auth user",async()=>{
+ const old={...process.env}, saved=global.fetch;
+ try {
+  setEnv();requests.length=0;global.fetch=mockFetch;
+  const r=await invoke(api,"GET",null,{authorization:trustedToken("aal1")});
+  assert.equal(r.code,403);
+  assert.equal(requests.filter(x=>x.url.includes("/admin_users?")).length,0);
+ }finally{process.env=old;global.fetch=saved;}
+});
+test("MFA JWT cannot claim another identity",async()=>{
+ const old={...process.env},saved=global.fetch;
+ try {
+  setEnv();requests.length=0;global.fetch=mockFetch;
+  const jwt=trustedToken().split(".");
+  const altered=Buffer.from(JSON.stringify({
+   sub:"22222222-2222-4222-8222-222222222222",aal:"aal2",
+   role:"authenticated",iss:process.env.ADMIN_SUPABASE_URL+"/auth/v1",exp:Math.floor(Date.now()/1000)+3600
+  })).toString("base64url");
+  const r=await invoke(api,"GET",null,{authorization:jwt[0]+"."+altered+"."+jwt[2]});
+  assert.equal(r.code,403);
+ }finally{process.env=old;global.fetch=saved;}
 });
