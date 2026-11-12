@@ -6,11 +6,12 @@ module.exports=function(req,res){
   const key=process.env.ADMIN_SUPABASE_PUBLISHABLE_KEY||"";
   const prod=process.env.NEXT_PUBLIC_SUPABASE_URL||"";
   const origin=process.env.ADMIN_APP_ORIGIN||"";
+  const limiter=process.env.ADMIN_RATE_LIMIT_SECRET||"";
   const mode=process.env.ADMIN_ENVIRONMENT;
   const deployed=process.env.VERCEL_ENV;
   const isProdDatabase=url==="https://cxopqzxdtxjtuxzatldx.supabase.co";
   if(process.env.ADMIN_ENABLED!=="true"||!["production","preview"].includes(mode)||deployed!==mode||!key||
-    !process.env.ADMIN_SUPABASE_SECRET_KEY||
+    !process.env.ADMIN_SUPABASE_SECRET_KEY||limiter.length<32||
     !/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(url)||url!==prod||
     (mode==="production"&&!isProdDatabase)||(mode==="preview"&&isProdDatabase)||
     !/^https:\/\/[a-z0-9.-]+$/.test(origin)||origin.includes("REPLACE"))
