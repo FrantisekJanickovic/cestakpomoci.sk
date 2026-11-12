@@ -8,9 +8,9 @@ function formatDate(iso){return iso?new Date(iso).toLocaleDateString("sk-SK"):"�
 async function init(){
  try{
   const response=await fetch("/api/admin-config",{cache:"no-store"});
-  if(!response.ok)throw Error("Administrácia nie je nakonfigurovaná. Vyžaduje samostatnú staging databázu.");
+  if(!response.ok)throw Error("Administrácia nie je nakonfigurovaná. Vyžaduje schváleného správcu a serverovú konfiguráciu.");
   settings=await response.json();
-  showStatus("Samostatné testovacie pripojenie je pripravené.");
+  showStatus("Administrátorské pripojenie je pripravené.");
   $("#login").hidden=false;
  }catch(e){showStatus(e.message);}
 }
@@ -28,7 +28,7 @@ async function login(event){
   sessionToken=data.access_token;
   await refresh();
   $("#login").hidden=true;$("#dashboard").hidden=false;
-  showStatus("Prihlásený správca testovacej databázy.");
+  showStatus("Prihlásený správca.");
  }catch(e){sessionToken=null;showStatus(e.message);}
 }
 async function adminRequest(method,body){
