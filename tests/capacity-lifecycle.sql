@@ -94,10 +94,40 @@ do $$begin
   end if;
 end$$;
 
+-- Rotation replaces the revoked token with a new one.
+update public.ambulances
+set update_token_hash=encode(digest(repeat('b',64),'sha256'),'hex'),
+    capacity_token_issued_at=now(),
+    capacity_token_expires_at=now()+interval '90 days'
+where external_id='test-1';
+-- Old bearer token still must not work.
+set role anon;
+update public.ambulances set capacity_status='limited', accepts_new=true where external_id='test-1';
+reset role;
+do $begin
+  if (select capacity_status from public.ambulances where external_id='test-1') <> 'accepting' then
+    raise exception 'old token authorized a write after rotation';
+  end if;
+end$;
+-- The new bearer token works and creates a second audit event.
+select set_config('request.headers',
+  json_build_object('x-capacity-token-hash',encode(digest(repeat('b',64),'sha256'),'hex'))::text, false);
+set role anon;
+update public.ambulances
+  set capacity_status='limited',accepts_new=true,capacity_updated_at=now()
+  where external_id='test-1';
+reset role;
+do $begin
+  if (select capacity_status from public.ambulances where external_id='test-1') <> 'limited'
+    or (select count(*) from public.capacity_updates where source='secure_link') <> 2 then
+    raise exception 'rotated link failed update or audit';
+  end if;
+end$;
+
 -- No-op updates must not append duplicate history.
 update public.ambulances set capacity_status=capacity_status where external_id='test-1';
 do $$begin
-  if (select count(*) from public.capacity_updates) <> 1 then
+  if (select count(*) from public.capacity_updates) <> 2 then
     raise exception 'no-op change incorrectly appended audit';
   end if;
 end$$;
