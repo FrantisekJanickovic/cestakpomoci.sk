@@ -78,3 +78,46 @@ test("public resource upstream errors return 502", async () => {
   const r = await invoke("resources", { method: "GET" }, async () => ({ ok: false, status: 503 }));
   assert.equal(r.code, 502);
 });
+
+test("modern publishable key is passed via apikey, never as JWT Bearer", async () => {
+ const originalKey=process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+ process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="sb_publishable_ci_test";
+ try {
+  for(const name of ["resources","ambulances"]){
+   let seen=false;
+   const r=await invoke(name,{method:"GET"},async(_url,opts)=>{
+    seen=true;
+    assert.equal(opts.headers.apikey,"sb_publishable_ci_test");
+    assert.equal(opts.headers.Authorization,undefined);
+    return {ok:true,json:async()=>[]};
+   });
+   assert.equal(r.code,200);assert.ok(seen);
+  }
+  let seen=false;
+  const r=await invoke("demand",{method:"POST",body:{
+   region:"Trnavský",ageBand:"12-18",radiusKm:300,resultCount:0,
+   topic:"general",audience:"parent",supportType:"either",urgency:"information",source:"guided_journey"
+  }},async(_url,opts)=>{
+   seen=true;
+   assert.equal(opts.headers.apikey,"sb_publishable_ci_test");
+   assert.equal(opts.headers.Authorization,undefined);
+   return {ok:true};
+  });
+  assert.equal(r.code,202);assert.ok(seen);
+ }finally{process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=originalKey;}
+});
+test("modern publishable key used for capacity writes without fake bearer JWT",async()=>{
+ const prev=process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+ process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="sb_publishable_ci_test";
+ try{
+  const r=await invoke("capacity",{method:"POST",body:{
+   ambulance:"clinic-01",token:"a".repeat(64),status:"call"
+  }},async(_url,opts)=>{
+   assert.equal(opts.headers.apikey,"sb_publishable_ci_test");
+   assert.equal(opts.headers.Authorization,undefined);
+   assert.match(opts.headers["x-capacity-token-hash"],/^[a-f0-9]{64}$/);
+   return {ok:true,json:async()=>[{external_id:"clinic-01",capacity_status:"call"}]};
+  });
+  assert.equal(r.code,200);
+ }finally{process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=prev;}
+});
