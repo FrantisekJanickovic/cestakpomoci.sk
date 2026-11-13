@@ -9,6 +9,17 @@ const state = {
 };
 
 const collator = new Intl.Collator("sk", { sensitivity: "base" });
+const LANGUAGE_NAMES={sk:"Slovenčina",cs:"Čeština",en:"Angličtina",de:"Nemčina",fi:"Fínčina",uk:"Ukrajinčina",ru:"Ruština",fr:"Francúzština",pl:"Poľština",sv:"Švédčina",nl:"Holandčina",el:"Gréčtina",hu:"Maďarčina",is:"Islandčina",ja:"Japončina",no:"Nórčina",tr:"Turečtina",zh:"Čínština"};
+const COUNTRY_NAMES={SK:"Slovensko",CZ:"Česko",GB:"Spojené kráľovstvo",US:"USA",DE:"Nemecko",FI:"Fínsko",AU:"Austrália",INT:"Medzinárodná organizácia"};
+function languageLabel(code){return LANGUAGE_NAMES[code]||code;}
+function countryLabel(code){return COUNTRY_NAMES[code]||code;}
+function populateMappedSelect(id, codes, labelFn) {
+  const select=$(id);const current=select.value;
+  select.replaceChildren(select.options[0]);
+  uniqueSorted(codes).forEach(code=>{const option=document.createElement("option");option.value=code;option.textContent=labelFn(code);select.append(option);});
+  select.value=current;
+}
+
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
@@ -91,6 +102,9 @@ async function loadData() {
     populateSelect("#topic-filter", uniqueSorted(state.resources.flatMap((item) => item.topics || [])));
     populateSelect("#audience-filter", uniqueSorted(state.resources.flatMap((item) => item.audience || [])));
     populateSelect("#age-filter", uniqueSorted(state.resources.flatMap((item) => item.age_groups || [])));
+    populateMappedSelect("#resource-language",state.resources.flatMap(item=>item.available_language_codes||[item.language_code||"sk"]),languageLabel);
+    populateMappedSelect("#resource-original-language",state.resources.map(item=>item.original_language_code).filter(Boolean),languageLabel);
+    populateMappedSelect("#resource-country",state.resources.map(item=>item.source_country_code).filter(Boolean),countryLabel);
     renderResources();
   } else {
     renderError("#resource-list", "Zdroje sa momentálne nepodarilo načítať.");
@@ -111,13 +125,19 @@ function getFilteredResources() {
   const topic = $("#topic-filter").value;
   const audience = $("#audience-filter").value;
   const age = $("#age-filter").value;
+  const language=$("#resource-language").value;
+  const originalLanguage=$("#resource-original-language").value;
+  const country=$("#resource-country").value;
   const sort = $("#resource-sort").value;
   const filtered = state.resources.filter((item) => {
-    const haystack = normalize([item.title, item.owner_name, item.topics_raw, item.audience_raw, ...(item.topics || [])].join(" "));
+    const haystack = normalize([item.title,item.owner_name,item.topics_raw,item.audience_raw,item.excerpt_sk,...(item.topics||[])].join(" "));
     return (!query || haystack.includes(query))
       && (!topic || (item.topics || []).includes(topic))
       && (!audience || (item.audience || []).includes(audience))
-      && (!age || (item.age_groups || []).includes(age));
+      && (!age || (item.age_groups || []).includes(age))
+      && (!language || (item.available_language_codes||[]).includes(language))
+      && (!originalLanguage || item.original_language_code===originalLanguage)
+      && (!country || item.source_country_code===country);
   });
   filtered.sort((a, b) => {
     if (sort === "za") return collator.compare(b.title, a.title);
@@ -144,7 +164,10 @@ function resourceCard(item) {
   return `
     <article class="resource-card">
       <div class="card-top"><span class="format-tag" title="${escapeHtml(item.resource_format || "Zdroj")}">${escapeHtml(item.resource_format || "Zdroj")}</span>${item.evidence_level ? `<span class="evidence-tag" title="Úroveň verejne dostupných dôkazov">${escapeHtml(item.evidence_level)}</span>` : ""}</div>
-      <h3>${escapeHtml(item.title)}</h3><p class="owner">${escapeHtml(item.owner_name)}</p><div class="chips">${topics}${audiences}</div>
+      <h3>${escapeHtml(item.title)}</h3><p class="owner">${escapeHtml(item.owner_name)}</p>
+      <p class="resource-languages">Dostupné: ${escapeHtml((item.available_language_codes||[item.language_code||"sk"]).map(languageLabel).join(", "))} · Originál: ${escapeHtml(item.original_language_code?languageLabel(item.original_language_code):"nezistený")} · Pôvod: ${escapeHtml(item.source_country_code?countryLabel(item.source_country_code):"nezistený")}</p>
+      ${item.excerpt_sk?`<p class="resource-excerpt">${escapeHtml(item.excerpt_sk)}</p>`:""}
+      <div class="chips">${topics}${audiences}</div>
       <div class="card-meta"><span>Vek <b>${escapeHtml(item.age_raw || (item.age_groups || []).join(", "))}</b></span><span>Prístup <b>${escapeHtml(item.access_type || "Neuvedené")}</b></span><span>Cena <b>${escapeHtml(item.price_type || "Neuvedené")}</b></span></div>
       ${url ? `<a class="card-link" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">Otvoriť zdroj <span aria-hidden="true">→</span></a>` : ""}
     </article>`;
@@ -434,9 +457,9 @@ function parseCapacityLink() {
 
 function bindEvents() {
   $$('[data-view-link]').forEach((button) => button.addEventListener("click", (event) => { event.preventDefault(); setView(button.dataset.viewLink); }));
-  ["#resource-search", "#topic-filter", "#audience-filter", "#age-filter", "#resource-sort"].forEach((selector) => $(selector).addEventListener("input", () => { state.resourceLimit = 12; renderResources(); }));
+  ["#resource-search", "#topic-filter", "#audience-filter", "#age-filter", "#resource-language", "#resource-original-language", "#resource-country", "#resource-sort"].forEach((selector) => $(selector).addEventListener("input", () => { state.resourceLimit = 12; renderResources(); }));
   ["#ambulance-search", "#region-filter", "#ambulance-age-filter", "#capacity-filter", "#verified-filter"].forEach((selector) => $(selector).addEventListener("input", () => { state.ambulanceLimit = 15; renderAmbulances(); }));
-  $("#clear-resource-filters").addEventListener("click", () => { $("#resource-search").value = ""; $("#topic-filter").value = ""; $("#audience-filter").value = ""; $("#age-filter").value = ""; $("#resource-sort").value = "az"; state.resourceLimit = 12; renderResources(); });
+  $("#clear-resource-filters").addEventListener("click", () => { $("#resource-search").value = ""; $("#topic-filter").value = ""; $("#audience-filter").value = ""; $("#age-filter").value = ""; $("#resource-language").value = ""; $("#resource-original-language").value = ""; $("#resource-country").value = ""; $("#resource-sort").value = "az"; state.resourceLimit = 12; renderResources(); });
   $("#clear-ambulance-filters").addEventListener("click", () => { $("#ambulance-search").value = ""; $("#region-filter").value = ""; $("#ambulance-age-filter").value = ""; $("#capacity-filter").value = ""; $("#verified-filter").checked = false; state.ambulanceLimit = 15; renderAmbulances(); });
   $("#load-more-resources").addEventListener("click", () => { state.resourceLimit += 12; renderResources(); });
   $("#load-more-ambulances").addEventListener("click", () => { state.ambulanceLimit += 15; renderAmbulances(); });
