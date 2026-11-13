@@ -225,3 +225,21 @@ test("MFA JWT cannot claim another identity",async()=>{
   assert.equal(r.code,403);
  }finally{process.env=old;global.fetch=saved;}
 });
+
+test("modern Supabase secret key uses apikey only on privileged PostgREST",async()=>{
+ const old={...process.env},saved=global.fetch;
+ try{
+  setEnv();process.env.ADMIN_SUPABASE_SECRET_KEY="sb_secret_ci_only";requests.length=0;global.fetch=mockFetch;
+  const r=await invoke(api,"GET",null,{authorization:token});
+  assert.equal(r.code,200);
+  const privileged=requests.filter(x=>x.url.includes("/rest/v1/"));
+  assert.ok(privileged.length>=2);
+  for(const request of privileged){
+   assert.equal(request.options.headers.apikey,"sb_secret_ci_only");
+   assert.equal(request.options.headers.Authorization,undefined);
+  }
+  const user=requests.find(x=>x.url.endsWith("/auth/v1/user"));
+  assert.ok(user);
+  assert.equal(user.options.headers.Authorization,trustedToken());
+ }finally{process.env=old;global.fetch=saved;}
+});
