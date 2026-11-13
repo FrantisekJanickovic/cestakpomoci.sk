@@ -64,7 +64,7 @@ const assert = require("node:assert/strict");
     assert.equal(await page.locator("#resource-search").inputValue(),"");
     assert.equal(await page.locator("#resource-language").inputValue(),"");
     assert.equal(await page.locator("#resource-country").inputValue(),"FI");
-    console.log("COUNTRY_DEBUG",await page.evaluate(()=>JSON.stringify({filters:["#resource-search","#topic-filter","#audience-filter","#age-filter","#resource-language","#resource-original-language","#resource-country"].map(x=>[x,document.querySelector(x).value]),items:state.resources.map(x=>[x.title,x.source_country_code]),count:document.querySelector("#resource-results-count").textContent})));
+    console.log("COUNTRY_DEBUG",await page.evaluate(()=>JSON.stringify({filters:["#resource-search","#topic-filter","#audience-filter","#age-filter","#resource-language","#resource-original-language","#resource-country"].map(x=>[x,document.querySelector(x).value]),items:state.resources.map(x=>[x.title,x.source_country_code]),count:document.querySelector("#resource-results-count").textContent,computed:getFilteredResources().map(x=>x.title),sort:document.querySelector("#resource-sort").value})));
     assert.equal(await page.locator("#resource-results-count").innerText(),"1");
     assert.equal(await page.locator('[data-country-code="FI"]').getAttribute("aria-pressed"),"true");
     assert.equal(await page.locator('[data-country-code="CZ"]').getAttribute("aria-pressed"),"false");
