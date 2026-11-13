@@ -10,7 +10,7 @@ function config() {
 }
 
 function headers(key, extra = {}) {
-  return { apikey: key, Authorization: `Bearer ${key}`, ...extra };
+  return { apikey: key, ...(!key.startsWith("sb_") ? { Authorization: `Bearer ${key}` } : {}), ...extra };
 }
 
 function validExternalId(value) {
