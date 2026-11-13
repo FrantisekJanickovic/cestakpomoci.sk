@@ -13,6 +13,72 @@ const LANGUAGE_NAMES={sk:"Slovenčina",cs:"Čeština",en:"Angličtina",de:"Nemč
 const COUNTRY_NAMES={SK:"Slovensko",CZ:"Česko",GB:"Spojené kráľovstvo",US:"USA",DE:"Nemecko",FI:"Fínsko",AU:"Austrália",INT:"Medzinárodná organizácia"};
 function languageLabel(code){return LANGUAGE_NAMES[code]||code;}
 function countryLabel(code){return COUNTRY_NAMES[code]||code;}
+
+const COUNTRY_FLAGS={SK:"🇸🇰",CZ:"🇨🇿",FI:"🇫🇮",GB:"🇬🇧",DE:"🇩🇪",AU:"🇦🇺",INT:"🌐"};
+const COUNTRY_ORDER=["SK","CZ","FI","GB","DE","AU","INT"];
+
+function syncCountryFlagSelection(){
+  const selected=$("#resource-country").value;
+  document.querySelectorAll("#resource-country-flags [data-country-code]").forEach(button=>{
+    const active=selected===button.dataset.countryCode;
+    button.setAttribute("aria-pressed",String(active));
+    button.classList.toggle("is-selected",active);
+  });
+}
+
+function renderCountryFlags(){
+  const container=$("#resource-country-flags");
+  const counts=new Map();
+  state.resources.forEach(resource=>{
+    const country=resource.source_country_code;
+    if(country)counts.set(country,(counts.get(country)||0)+1);
+  });
+  const ordered=[...counts.keys()].sort((a,b)=>{
+    const ia=COUNTRY_ORDER.indexOf(a),ib=COUNTRY_ORDER.indexOf(b);
+    return (ia===-1?100:ia)-(ib===-1?100:ib)||collator.compare(countryLabel(a),countryLabel(b));
+  });
+  container.replaceChildren();
+  ordered.forEach(code=>{
+    const button=document.createElement("button");
+    button.type="button";
+    button.className="country-flag-button";
+    button.dataset.countryCode=code;
+    button.setAttribute("aria-label",countryLabel(code)+": "+counts.get(code)+" zdrojov. Zobraziť len túto krajinu.");
+    button.title=countryLabel(code)+" – "+counts.get(code)+" zdrojov";
+    const flag=document.createElement("span");
+    flag.className="country-flag-symbol";
+    flag.setAttribute("aria-hidden","true");
+    flag.textContent=COUNTRY_FLAGS[code]||"🌍";
+    const name=document.createElement("span");
+    name.className="country-flag-name";
+    name.textContent=countryLabel(code);
+    const count=document.createElement("span");
+    count.className="country-flag-count";
+    count.textContent=String(counts.get(code));
+    button.append(flag,name,count);
+    button.addEventListener("click",()=>selectCountryFlag(code));
+    container.append(button);
+  });
+  syncCountryFlagSelection();
+}
+
+function resetResourceFilters(){
+  ["#resource-search","#topic-filter","#audience-filter","#age-filter",
+   "#resource-language","#resource-original-language","#resource-country"].forEach(selector=>{
+    $(selector).value="";
+  });
+  $("#resource-sort").value="az";
+  state.resourceLimit=12;
+}
+
+function selectCountryFlag(code){
+  const wasSelected=$("#resource-country").value===code;
+  resetResourceFilters();
+  if(!wasSelected) $("#resource-country").value=code;
+  syncCountryFlagSelection();
+  renderResources();
+}
+
 function populateMappedSelect(id, codes, labelFn) {
   const select=$(id);const current=select.value;
   select.replaceChildren(select.options[0]);
@@ -105,6 +171,7 @@ async function loadData() {
     populateMappedSelect("#resource-language",state.resources.flatMap(item=>item.available_language_codes||[item.language_code||"sk"]),languageLabel);
     populateMappedSelect("#resource-original-language",state.resources.map(item=>item.original_language_code).filter(Boolean),languageLabel);
     populateMappedSelect("#resource-country",state.resources.map(item=>item.source_country_code).filter(Boolean),countryLabel);
+    renderCountryFlags();
     renderResources();
   } else {
     renderError("#resource-list", "Zdroje sa momentálne nepodarilo načítať.");
@@ -148,6 +215,7 @@ function getFilteredResources() {
 }
 
 function renderResources() {
+  syncCountryFlagSelection();
   const filtered = getFilteredResources();
   const list = $("#resource-list");
   $("#resource-results-count").textContent = filtered.length;
@@ -459,7 +527,7 @@ function bindEvents() {
   $$('[data-view-link]').forEach((button) => button.addEventListener("click", (event) => { event.preventDefault(); setView(button.dataset.viewLink); }));
   ["#resource-search", "#topic-filter", "#audience-filter", "#age-filter", "#resource-language", "#resource-original-language", "#resource-country", "#resource-sort"].forEach((selector) => $(selector).addEventListener("input", () => { state.resourceLimit = 12; renderResources(); }));
   ["#ambulance-search", "#region-filter", "#ambulance-age-filter", "#capacity-filter", "#verified-filter"].forEach((selector) => $(selector).addEventListener("input", () => { state.ambulanceLimit = 15; renderAmbulances(); }));
-  $("#clear-resource-filters").addEventListener("click", () => { $("#resource-search").value = ""; $("#topic-filter").value = ""; $("#audience-filter").value = ""; $("#age-filter").value = ""; $("#resource-language").value = ""; $("#resource-original-language").value = ""; $("#resource-country").value = ""; $("#resource-sort").value = "az"; state.resourceLimit = 12; renderResources(); });
+  $("#clear-resource-filters").addEventListener("click", () => { resetResourceFilters(); renderResources(); });
   $("#clear-ambulance-filters").addEventListener("click", () => { $("#ambulance-search").value = ""; $("#region-filter").value = ""; $("#ambulance-age-filter").value = ""; $("#capacity-filter").value = ""; $("#verified-filter").checked = false; state.ambulanceLimit = 15; renderAmbulances(); });
   $("#load-more-resources").addEventListener("click", () => { state.resourceLimit += 12; renderResources(); });
   $("#load-more-ambulances").addEventListener("click", () => { state.ambulanceLimit += 15; renderAmbulances(); });
