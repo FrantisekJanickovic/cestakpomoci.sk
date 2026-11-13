@@ -17,6 +17,25 @@ const assert = require("node:assert/strict");
     }
     assert.ok(loaded, "local server failed to start");
     await page.waitForLoadState("load");
+    // Hero must communicate the offer, show one coherent visual journey and provide an icon.
+    assert.match(await page.locator("#hero-title").innerText(),/dieťa potrebuje pomoc/);
+    assert.match(await page.locator(".hero-lead").innerText(),/sprievodca/i);
+    assert.match(await page.locator(".hero-lead").innerText(),/ambulancie/i);
+    assert.equal(await page.locator(".hero-visual img").getAttribute("src"),"/hero-journey.svg");
+    assert.equal(await page.locator("link[rel=icon]").getAttribute("href"),"/favicon.svg");
+    const illustration=await page.request.get("http://127.0.0.1:4173/hero-journey.svg");
+    assert.equal(illustration.status(),200);
+    const illustrationText=await illustration.text();
+    for(const step of ["Situácia","Sprievodca","Zdroje","Ambulancia","Pomoc"]) assert.ok(illustrationText.includes(step));
+    const favicon=await page.request.get("http://127.0.0.1:4173/favicon.svg");
+    assert.equal(favicon.status(),200);
+    assert.match(await favicon.text(),/<svg/);
+    assert.ok(await page.locator(".hero-visual img").evaluate(img=>img.complete&&img.naturalWidth>0));
+    await page.setViewportSize({width:390,height:844});
+    assert.ok(await page.locator(".hero-visual").isVisible());
+    assert.ok((await page.locator(".hero-copy").boundingBox()).width<=390);
+    await page.setViewportSize({width:1280,height:850});
+
     // Multilingual catalogue controls must exist and actually filter results.
     await page.route("**/api/resources",route=>route.fulfill({
       status:200,contentType:"application/json",
