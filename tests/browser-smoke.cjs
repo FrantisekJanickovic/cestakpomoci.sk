@@ -34,7 +34,7 @@ const assert = require("node:assert/strict");
       ])
     }));
     await page.reload({waitUntil:"load"});
-    await page.locator("#resource-language option[value=cs]").waitFor();
+    await page.locator("#resource-language option[value=cs]").waitFor({state:"attached"});
     await page.locator("#resource-language").selectOption("cs");
     assert.equal(await page.locator("#resource-results-count").innerText(),"1");
     assert.match(await page.locator("#resource-list").innerText(),/Slovenské vysvetlenie/);
