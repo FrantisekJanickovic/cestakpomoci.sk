@@ -559,3 +559,69 @@ footer { min-height: 120px; display: grid; grid-template-columns: 1fr auto auto 
  }
  .hero-visual img { object-fit: cover; object-position: right center; }
 }
+
+
+/* Country shortcuts above the resource library title */
+.country-quick-filter {
+  margin-bottom: 38px;
+  padding: 22px 24px;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: linear-gradient(120deg,#fff 0%,#f3faf7 100%);
+}
+.country-quick-filter-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px 24px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+.country-quick-filter-heading .eyebrow { margin: 0; }
+.country-quick-filter-hint { font-size: 13px; color: #49646a; }
+.country-flag-list { display: flex; flex-wrap: wrap; gap: 10px; }
+.country-flag-button {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 12px;
+  min-height: 52px;
+  background: #fff;
+  border: 1px solid #d5e6e0;
+  border-radius: 15px;
+  color: #284951;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 750;
+  cursor: pointer;
+  box-shadow: 0 3px 12px rgba(25,80,76,.035);
+  transition: border-color .18s ease, background .18s ease, transform .18s ease;
+}
+.country-flag-button:hover { border-color: #86b6ad; transform: translateY(-1px); }
+.country-flag-button:focus-visible { outline: 3px solid #257978; outline-offset: 3px; }
+.country-flag-button.is-selected {
+  border-color: #297f79;
+  background: #e7f6ef;
+  box-shadow: inset 0 0 0 1px #297f79;
+}
+.country-flag-symbol { font-size: 27px; line-height: 1; font-weight: 400; }
+.country-flag-name { white-space: nowrap; }
+.country-flag-count {
+  min-width: 25px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  color: #427168;
+  background: #ecf5f1;
+  text-align: center;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.country-flag-button.is-selected .country-flag-count { background: #c8e8dc; color: #225b55; }
+@media (max-width: 780px) {
+  .country-quick-filter { padding: 18px 15px; margin-bottom: 26px; }
+  .country-quick-filter-heading { gap: 6px; }
+  .country-flag-list { gap: 8px; }
+  .country-flag-button { min-height: 49px; padding: 8px 10px; font-size: 12px; }
+  .country-flag-symbol { font-size: 24px; }
+}
