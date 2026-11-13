@@ -13,7 +13,7 @@ module.exports = async function handler(request, response) {
     "external_id", "title", "owner_name", "owner_type", "audience", "audience_raw",
     "age_groups", "age_raw", "age_min", "age_max", "topics", "topics_raw",
     "resource_format", "support_level", "access_type", "registration_type", "price_type",
-    "language_code", "evidence_level", "hub_priority", "learning_phase", "source_url", "checked_at",
+    "language_code", "source_country_code", "original_language_code", "available_language_codes", "excerpt_sk", "evidence_level", "hub_priority", "learning_phase", "source_url", "checked_at",
   ].join(",");
   const url = `${baseUrl}/rest/v1/content_resources?select=${encodeURIComponent(fields)}&is_published=eq.true&order=title.asc&limit=500`;
 
