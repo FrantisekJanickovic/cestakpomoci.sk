@@ -625,3 +625,27 @@ footer { min-height: 120px; display: grid; grid-template-columns: 1fr auto auto 
   .country-flag-button { min-height: 49px; padding: 8px 10px; font-size: 12px; }
   .country-flag-symbol { font-size: 24px; }
 }
+
+
+/* Clear, restrained green corner ribbon for definitively free materials */
+.resource-card-free { position: relative; overflow: hidden; }
+.resource-card-free .card-top { padding-right: 71px; }
+.free-ribbon {
+  position: absolute;
+  z-index: 2;
+  top: 23px;
+  right: -36px;
+  width: 150px;
+  padding: 5px 0;
+  transform: rotate(45deg);
+  transform-origin: center;
+  background: #22834d;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  line-height: 1.5;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(20,90,50,.18);
+  pointer-events: none;
+}

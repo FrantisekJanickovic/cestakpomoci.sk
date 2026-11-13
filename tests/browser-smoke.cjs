@@ -41,19 +41,24 @@ const assert = require("node:assert/strict");
       status:200,contentType:"application/json",
       body:JSON.stringify([
        {title:"Slovenský zdroj",owner_name:"SK",topics:[],audience:[],age_groups:[],
-        source_url:"https://example.org/sk",available_language_codes:["sk"],
+        source_url:"https://example.org/sk",price_type:"Bezplatné",available_language_codes:["sk"],
         original_language_code:"sk",source_country_code:"SK"},
        {title:"Český zdroj",owner_name:"CZ",topics:[],audience:[],age_groups:[],
-        source_url:"https://example.org/cs",available_language_codes:["cs"],
+        source_url:"https://example.org/cs",price_type:"39 € pri kontrole",available_language_codes:["cs"],
         original_language_code:"cs",source_country_code:"CZ",
         excerpt_sk:"Slovenské vysvetlenie českého článku."},
        {title:"Fínsky plagát",owner_name:"FI",topics:[],audience:[],age_groups:[],
-        source_url:"https://example.org/fi",available_language_codes:["en","de"],
+        source_url:"https://example.org/fi",access_type:"Voľne dostupný web",available_language_codes:["en","de"],
         original_language_code:null,source_country_code:"FI"}
       ])
     }));
     await page.reload({waitUntil:"load"});
     await page.locator("#resource-language option[value=cs]").waitFor({state:"attached"});
+    assert.equal(await page.locator(".resource-card-free").count(),2);
+    assert.equal(await page.locator(".free-ribbon").count(),2);
+    assert.equal(await page.locator(".free-ribbon").first().innerText(),"ZDARMA");
+    assert.ok(!(await page.locator(".resource-card").filter({hasText:"Český zdroj"}).locator(".free-ribbon").count()));
+
     // Flag quick filters are built from live data; selection is exclusive.
     const flagButtons=page.locator("#resource-country-flags [data-country-code]");
     assert.equal(await flagButtons.count(),3);
