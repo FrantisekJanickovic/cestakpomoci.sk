@@ -452,3 +452,7 @@ footer { min-height: 120px; display: grid; grid-template-columns: 1fr auto auto 
 .learning-step strong { font-size: 16px; }
 .learning-step label > span > span { line-height: 1.6; color: var(--muted); font-size: 14px; }
 .learning-step:has(input:checked) { border-color: #a6d4c4; background: #f3faf6; }
+
+/* Multilingual catalogue metadata and editorial Slovak synopsis */
+.resource-languages{font-size:.82rem;line-height:1.45;color:#486460;margin:.45rem 0 .7rem}
+.resource-excerpt{font-size:.9rem;line-height:1.6;color:#263f3c;margin:.35rem 0 .9rem}
