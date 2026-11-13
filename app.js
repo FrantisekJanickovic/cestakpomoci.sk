@@ -225,12 +225,24 @@ function renderResources() {
   $("#load-more-resources").hidden = filtered.length <= state.resourceLimit;
 }
 
+function isFreeResource(item) {
+  const price=(item.price_type||"").trim().toLocaleLowerCase("sk");
+  const access=(item.access_type||"").trim().toLocaleLowerCase("sk");
+  // Mark only clearly free items. Mixed, paid, unknown and conditional offers do not qualify.
+  if (/^bezplatné(?:$|;)/.test(price)) return true;
+  if (price) return false;
+  // Imported international entries have no price field but explicit free access metadata.
+  return access==="voľne prístupný externý zdroj" || access==="voľne dostupný web";
+}
+
 function resourceCard(item) {
+  const free=isFreeResource(item);
   const url = safeUrl(item.source_url);
   const topics = (item.topics || []).slice(0, 2).map((topic) => `<span class="chip topic">${escapeHtml(topic)}</span>`).join("");
   const audiences = (item.audience || []).slice(0, 2).map((audience) => `<span class="chip">${escapeHtml(audience)}</span>`).join("");
   return `
-    <article class="resource-card">
+    <article class="resource-card${free ? " resource-card-free" : ""}">
+      ${free ? `<span class="free-ribbon" aria-label="Zdarma">ZDARMA</span>` : ""}
       <div class="card-top"><span class="format-tag" title="${escapeHtml(item.resource_format || "Zdroj")}">${escapeHtml(item.resource_format || "Zdroj")}</span>${item.evidence_level ? `<span class="evidence-tag" title="Úroveň verejne dostupných dôkazov">${escapeHtml(item.evidence_level)}</span>` : ""}</div>
       <h3>${escapeHtml(item.title)}</h3><p class="owner">${escapeHtml(item.owner_name)}</p>
       <p class="resource-languages">Dostupné: ${escapeHtml((item.available_language_codes||[item.language_code||"sk"]).map(languageLabel).join(", "))} · Originál: ${escapeHtml(item.original_language_code?languageLabel(item.original_language_code):"nezistený")} · Pôvod: ${escapeHtml(item.source_country_code?countryLabel(item.source_country_code):"nezistený")}</p>
