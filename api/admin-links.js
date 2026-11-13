@@ -24,7 +24,7 @@ function config() {
       || (mode === "preview" && isProdDatabase)) return null;
   return { base, publicKey, secretKey, origin, limitSecret };
 }
-function sbHeaders(key, extra={}) { return { apikey:key, Authorization:"Bearer "+key, ...extra }; }
+function sbHeaders(key, extra={}) { return { apikey:key, ...(!key.startsWith("sb_") ? { Authorization:"Bearer "+key } : {}), ...extra }; }
 async function requestJson(url, options) {
   const result = await fetch(url, { ...options, signal: AbortSignal.timeout(TIMEOUT), cache:"no-store" });
   const json = await result.json().catch(()=>null);
