@@ -19,7 +19,7 @@ const COUNTRY_ORDER=["SK","CZ","FI","GB","DE","AU","INT"];
 
 function syncCountryFlagSelection(){
   const selected=$("#resource-country").value;
-  $("#resource-country-flags [data-country-code]").forEach(button=>{
+  document.querySelectorAll("#resource-country-flags [data-country-code]").forEach(button=>{
     const active=selected===button.dataset.countryCode;
     button.setAttribute("aria-pressed",String(active));
     button.classList.toggle("is-selected",active);
