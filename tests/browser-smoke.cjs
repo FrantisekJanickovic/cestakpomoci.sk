@@ -17,6 +17,35 @@ const assert = require("node:assert/strict");
     }
     assert.ok(loaded, "local server failed to start");
     await page.waitForLoadState("load");
+    // Multilingual catalogue controls must exist and actually filter results.
+    await page.route("**/api/resources",route=>route.fulfill({
+      status:200,contentType:"application/json",
+      body:JSON.stringify([
+       {title:"Slovenský zdroj",owner_name:"SK",topics:[],audience:[],age_groups:[],
+        source_url:"https://example.org/sk",available_language_codes:["sk"],
+        original_language_code:"sk",source_country_code:"SK"},
+       {title:"Český zdroj",owner_name:"CZ",topics:[],audience:[],age_groups:[],
+        source_url:"https://example.org/cs",available_language_codes:["cs"],
+        original_language_code:"cs",source_country_code:"CZ",
+        excerpt_sk:"Slovenské vysvetlenie českého článku."},
+       {title:"Fínsky plagát",owner_name:"FI",topics:[],audience:[],age_groups:[],
+        source_url:"https://example.org/fi",available_language_codes:["en","de"],
+        original_language_code:null,source_country_code:"FI"}
+      ])
+    }));
+    await page.reload({waitUntil:"load"});
+    await page.locator("#resource-language option[value=cs]").waitFor();
+    await page.locator("#resource-language").selectOption("cs");
+    assert.equal(await page.locator("#resource-results-count").innerText(),"1");
+    assert.match(await page.locator("#resource-list").innerText(),/Slovenské vysvetlenie/);
+    await page.locator("#resource-country").selectOption("FI");
+    assert.equal(await page.locator("#resource-results-count").innerText(),"0");
+    await page.locator("#clear-resource-filters").click();
+    await page.locator("#resource-original-language").selectOption("cs");
+    assert.equal(await page.locator("#resource-results-count").innerText(),"1");
+    await page.locator("#clear-resource-filters").click();
+    await page.unroute("**/api/resources");
+
     await page.locator("[data-open-journey]").first().click();
     console.log("PAGE ERRORS:", jsErrors);
     console.log("OPEN:", await page.locator("#journey-dialog").evaluate(el => el.open));
