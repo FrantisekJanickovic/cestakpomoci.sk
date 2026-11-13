@@ -456,3 +456,66 @@ footer { min-height: 120px; display: grid; grid-template-columns: 1fr auto auto 
 /* Multilingual catalogue metadata and editorial Slovak synopsis */
 .resource-languages{font-size:.82rem;line-height:1.45;color:#486460;margin:.45rem 0 .7rem}
 .resource-excerpt{font-size:.9rem;line-height:1.6;color:#263f3c;margin:.35rem 0 .9rem}
+
+/* Homepage: one coherent path; copy remains real accessible text and illustration decorative. */
+.hero {
+  position: relative;
+  isolation: isolate;
+  display: block;
+  min-height: 660px;
+  margin: 28px 0 62px;
+  padding: 70px 64px 90px;
+  overflow: hidden;
+  border: 1px solid #e1ece8;
+  border-radius: 36px;
+  background: #f7fbf9;
+}
+.hero::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(250,253,252,.96) 0%, rgba(250,253,252,.95) 30%, rgba(250,253,252,.74) 43%, rgba(250,253,252,0) 67%);
+}
+.hero-copy { position: relative; z-index: 1; max-width: 620px; width: 54%; }
+.hero h1 { max-width: 605px; font-size: clamp(42px, 4.7vw, 66px); line-height: 1.09; }
+.hero-lead { max-width: 570px; color: #426064; font-size: 18px; line-height: 1.65; }
+.hero-visual {
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: none;
+  overflow: hidden;
+}
+.hero-visual img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+.hero-steps { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+@media (max-width: 1080px) {
+  .hero { min-height: 700px; padding: 55px 44px; }
+  .hero-copy { width: 62%; }
+  .hero h1 { font-size: clamp(42px, 5.5vw, 58px); }
+}
+@media (max-width: 780px) {
+  .hero {
+    min-height: auto;
+    padding: 34px 22px 0;
+    margin: 20px 0 44px;
+    overflow: hidden;
+    border-radius: 24px;
+  }
+  .hero::before { display: none; }
+  .hero-copy { width: 100%; max-width: none; }
+  .hero h1 { font-size: clamp(35px, 9vw, 48px); line-height: 1.1; }
+  .hero-lead { font-size: 16px; line-height: 1.6; }
+  .hero-actions { gap: 14px; }
+  .trust-row { margin-top: 24px; gap: 10px 18px; font-size: 12px; }
+  .hero-visual { position: relative; inset: auto; width: calc(100% + 44px); height: auto; margin: 10px -22px 0; aspect-ratio: 1600 / 880; }
+  .hero-visual img { width: 100%; height: 100%; object-fit: contain; }
+  .hero-steps { position: static; width: auto; height: auto; overflow: visible; margin: 2px 0 20px; color: #45645e; font-size: 13px; line-height: 1.5; text-align: center; }
+}
