@@ -57,7 +57,7 @@ module.exports = async function handler(request, response) {
       method: "POST",
       headers: {
         apikey: publishableKey,
-        Authorization: `Bearer ${publishableKey}`,
+        ...(!publishableKey.startsWith("sb_") ? { Authorization: `Bearer ${publishableKey}` } : {}),
         "Content-Type": "application/json",
         Prefer: "return=minimal",
       },
