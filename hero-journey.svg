@@ -1,42 +1,28 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 880" role="img" aria-labelledby="journey-title journey-desc">
-<title id="journey-title">Cesta od neistoty k podpore</title>
-<desc id="journey-desc">Päť jasne prepojených krokov: situácia, sprievodca, zdroje, ambulancia a pomoc.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 880" role="img" aria-labelledby="ht hd">
+<title id="ht">Cesta k pomoci – od začiatku až k podpore</title>
+<desc id="hd">Kľukatá cesta vedie od prvého kroku po srdce symbolizujúce podporu. Kruh je umiestnený vpravo, ľavá strana prechádza do bielej.</desc>
 <defs>
-<linearGradient id="sky" x2="0" y2="1"><stop stop-color="#fafdff"/><stop offset=".55" stop-color="#f1f9f7"/><stop offset="1" stop-color="#eaf7e9"/></linearGradient>
-<linearGradient id="hill" x2="1" y2="1"><stop stop-color="#e4f3d6"/><stop offset="1" stop-color="#86c6a6"/></linearGradient>
-<linearGradient id="road" x2="0" y2="1"><stop stop-color="#fff9e9"/><stop offset="1" stop-color="#ffe9c9"/></linearGradient>
-<filter id="shadow" x="-20%" y="-30%" width="150%" height="170%"><feDropShadow dx="0" dy="10" stdDeviation="16" flood-color="#427c69" flood-opacity=".16"/></filter>
-<filter id="glow"><feGaussianBlur stdDeviation="28"/></filter>
+ <linearGradient id="bg" x1="0" y1=".5" x2="1" y2=".5"><stop offset="0" stop-color="#fff"/><stop offset=".46" stop-color="#fff"/><stop offset=".73" stop-color="#edf9f5"/><stop offset="1" stop-color="#d8f4e9"/></linearGradient>
+ <linearGradient id="hill" x1=".1" x2=".9" y1="0" y2="1"><stop stop-color="#b7edda"/><stop offset="1" stop-color="#51c78e"/></linearGradient>
+ <linearGradient id="path" x1=".2" x2=".8" y1="1" y2="0"><stop stop-color="#079a83"/><stop offset="1" stop-color="#008a84"/></linearGradient>
+ <clipPath id="circle"><circle cx="1241" cy="431" r="320"/></clipPath>
+ <filter id="drop" x="-25%" y="-25%" width="150%" height="150%"><feDropShadow dx="0" dy="10" stdDeviation="19" flood-color="#2f8e78" flood-opacity=".22"/></filter>
 </defs>
-<rect width="1600" height="880" fill="url(#sky)"/>
-<circle cx="1480" cy="120" r="68" fill="#ffe5a1"/><circle cx="1480" cy="120" r="105" fill="#fff0c5" opacity=".5" filter="url(#glow)"/>
-<path d="M0 610Q240 490 430 570T840 460Q1040 330 1230 390T1600 160V880H0Z" fill="#dff0df"/>
-<path d="M0 760Q250 630 460 700T920 620Q1220 520 1600 360V880H0Z" fill="url(#hill)" opacity=".85"/>
-<path d="M0 810Q270 720 480 795T940 740Q1230 640 1600 600V880H0Z" fill="#b7dfbd" opacity=".65"/>
-<g fill="#8dc9a8" opacity=".65"><ellipse cx="52" cy="805" rx="22" ry="78" transform="rotate(-32 52 805)"/><ellipse cx="97" cy="813" rx="23" ry="68" transform="rotate(23 97 813)"/><ellipse cx="1499" cy="704" rx="23" ry="94" transform="rotate(-33 1499 704)"/><ellipse cx="1554" cy="728" rx="24" ry="80" transform="rotate(28 1554 728)"/></g>
-<path d="M140 739C270 756 295 684 420 664S630 650 746 584S925 545 1047 470S1228 447 1301 355S1420 336 1475 276" stroke="#f8d59b" stroke-width="89" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity=".35"/>
-<path d="M140 739C270 756 295 684 420 664S630 650 746 584S925 545 1047 470S1228 447 1301 355S1420 336 1475 276" stroke="#fff6e1" stroke-width="72" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-<path d="M140 739C270 756 295 684 420 664S630 650 746 584S925 545 1047 470S1228 447 1301 355S1420 336 1475 276" stroke="#fff" stroke-opacity=".8" stroke-width="4" stroke-dasharray="14 15" stroke-linecap="round" fill="none"/>
-<!-- step 1: parent supports a worried child -->
-<g transform="translate(155 680)" filter="url(#shadow)"><circle r="116" fill="#ffe7de" stroke="#fff" stroke-width="9"/>
-<path d="M-84 90Q-80-36-26-38Q18-42 33 91Z" fill="#eb897b"/><ellipse cx="-31" cy="-25" rx="35" ry="44" fill="#f3b78e"/><path d="M-63-25Q-69-74-34-75Q16-78 8-27Q-11-50-42-52Z" fill="#8c503d"/>
-<path d="M-27 106Q-5 22 61 28Q96 44 94 103Z" fill="#4e96bd"/><ellipse cx="46" cy="20" rx="32" ry="36" fill="#e9ad82"/><path d="M14 17Q9-28 43-24Q82-25 77 16Q45 3 18 13Z" fill="#9b6044"/><path d="M-3 40Q19 63 39 48" fill="none" stroke="#f3b78e" stroke-width="16" stroke-linecap="round"/>
-<path d="M41 32l10 4m-63-44 8 3" stroke="#845849" stroke-width="3" stroke-linecap="round"/>
-</g>
-<!-- step 2: guided signpost -->
-<g transform="translate(448 604)" filter="url(#shadow)"><circle r="105" fill="#fff2c9" stroke="#fff" stroke-width="9"/><rect x="-6" y="-67" width="13" height="143" rx="5" fill="#8b664e"/><path d="M-49-61h104l22 18-22 19H-49l-22-19Z" fill="#33b4a7"/><path d="M-66-10H41l22 20-22 18H-66L-85 10Z" fill="#f8b43c"/><path d="M-40 43H66l20 19-20 19H-40l-22-19Z" fill="#a389db"/></g>
-<!-- step 3: curated resources -->
-<g transform="translate(783 503)" filter="url(#shadow)"><circle r="108" fill="#d8f5ec" stroke="#fff" stroke-width="9"/><rect x="-56" y="-23" width="112" height="25" rx="6" fill="#7d65b3"/><rect x="-62" y="5" width="126" height="23" rx="6" fill="#179f9e"/><rect x="-47" y="31" width="110" height="20" rx="6" fill="#539ec9"/><rect x="-44" y="-71" width="88" height="65" rx="8" fill="#254e68"/><rect x="-38" y="-65" width="76" height="52" rx="5" fill="#e8f8fb"/><path d="m-10-54 27 15-27 15Z" fill="#38aaab"/><path d="M58-30l24 9v66l-45-6V-19Z" fill="#fff" stroke="#8cc8ca" stroke-width="4"/><path d="m48 15 9 9 17-20" fill="none" stroke="#e9ad2c" stroke-width="6" stroke-linecap="round"/></g>
-<!-- step 4: find care -->
-<g transform="translate(1122 393)" filter="url(#shadow)"><circle r="108" fill="#eee8ff" stroke="#fff" stroke-width="9"/><rect x="-61" y="-47" width="123" height="113" rx="9" fill="#f8ffff" stroke="#9ac5e0" stroke-width="4"/><rect x="-72" y="-53" width="144" height="15" rx="4" fill="#4f9ed5"/><rect x="-19" y="-74" width="38" height="38" rx="6" fill="#fff"/><path d="M0-67v25m-13-13h26" stroke="#ed7666" stroke-width="9" stroke-linecap="round"/><g fill="#b3e0ed"><rect x="-45" y="-25" width="24" height="24" rx="3"/><rect x="19" y="-25" width="24" height="24" rx="3"/><rect x="-45" y="12" width="24" height="24" rx="3"/><rect x="19" y="12" width="24" height="24" rx="3"/></g><rect x="-11" y="27" width="22" height="39" fill="#64a8d2"/><path d="M70 10a22 22 0 0 0-44 0c0 19 22 42 22 42s22-23 22-42Z" fill="#ed755f"/><circle cx="48" cy="10" r="8" fill="#fff"/></g>
-<!-- step 5: positive destination -->
-<g transform="translate(1408 255)" filter="url(#shadow)"><circle r="115" fill="#fff0b8" stroke="#fff" stroke-width="9"/><path d="M-89 90Q-64-16-7-18Q62-15 89 90Z" fill="#e78d79"/><ellipse cx="-25" cy="-34" rx="38" ry="45" fill="#f4bf93"/><path d="M-60-31Q-69-76-29-81Q20-82 10-29Q-29-54-60-31Z" fill="#985b42"/><path d="M-10 92Q5-8 58-10Q95 18 93 93Z" fill="#377fa8"/><ellipse cx="47" cy="-18" rx="30" ry="35" fill="#f0b487"/><path d="M18-24Q13-59 47-60Q82-54 77-22Q56-40 18-24Z" fill="#965738"/><path d="M-27-14q8 9 17 0m44 9q8 9 17 0" fill="none" stroke="#84523c" stroke-width="4" stroke-linecap="round"/><path d="M-21 4q13 16 27 0m28 10q13 14 26-2" fill="none" stroke="#ce785e" stroke-width="4" stroke-linecap="round"/><path d="M-10 55Q28 81 46 42" fill="none" stroke="#f6c59e" stroke-width="20" stroke-linecap="round"/></g>
-<!-- milestone labels, legible even when scaled -->
-<g font-family="Inter,Arial,sans-serif" font-weight="800" font-size="31" text-anchor="middle" fill="#254451">
-<g><rect x="49" y="795" width="212" height="58" rx="29" fill="#fffaf9" stroke="#ea9889" stroke-width="4"/><text x="155" y="833">1. Situácia</text></g>
-<g><rect x="321" y="724" width="256" height="58" rx="29" fill="#fffbed" stroke="#eebf5f" stroke-width="4"/><text x="449" y="762">2. Sprievodca</text></g>
-<g><rect x="677" y="624" width="212" height="58" rx="29" fill="#f1fffb" stroke="#65c9b8" stroke-width="4"/><text x="783" y="662">3. Zdroje</text></g>
-<g><rect x="998" y="520" width="248" height="58" rx="29" fill="#f9f5ff" stroke="#bd9bdf" stroke-width="4"/><text x="1122" y="558">4. Ambulancia</text></g>
-<g><rect x="1302" y="393" width="212" height="58" rx="29" fill="#fff8ed" stroke="#ebb55c" stroke-width="4"/><text x="1408" y="431">5. Pomoc</text></g>
+<rect width="1600" height="880" fill="url(#bg)"/>
+<circle cx="1241" cy="431" r="324" fill="#fdfdfa" stroke="#ffefcd" stroke-width="20" filter="url(#drop)"/>
+<g clip-path="url(#circle)">
+ <rect x="918" y="110" width="647" height="642" fill="#fffefa"/>
+ <circle cx="1140" cy="320" r="91" fill="#ffe2a1"/>
+ <path d="M897 430Q1053 314 1222 357T1588 340V756H897Z" fill="#acf0dc"/>
+ <path d="M897 528Q1110 395 1248 466T1598 443V760H897Z" fill="url(#hill)"/>
+ <path d="M897 635Q1110 524 1274 568T1588 546V760H897Z" fill="#68d49e"/>
+ <path d="M897 731Q1120 650 1310 694T1590 676V780H897Z" fill="#45c887"/>
+ <g fill="#08a15a"><path d="M939 472Q937 425 970 427Q990 425 1001 451Q1029 407 1057 431Q1076 455 1061 477Z"/><path d="M1438 515Q1429 457 1459 463Q1489 469 1498 490Q1518 465 1542 483L1564 525Z"/></g>
+ <path d="M1098 797 C1210 713 1340 728 1316 647 C1296 577 1067 619 1075 522 C1084 410 1363 473 1374 374 C1379 345 1370 322 1383 297" stroke="#fff" stroke-width="83" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+ <path d="M1098 797 C1210 713 1340 728 1316 647 C1296 577 1067 619 1075 522 C1084 410 1363 473 1374 374 C1379 345 1370 322 1383 297" stroke="url(#path)" stroke-width="62" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+ <circle cx="1114" cy="643" r="49" fill="#fff"/><circle cx="1114" cy="643" r="33" fill="#ffbb24"/><circle cx="1114" cy="643" r="17" fill="#fff"/>
+ <circle cx="1285" cy="500" r="48" fill="#fff"/><circle cx="1285" cy="500" r="31" fill="#087d7e"/><circle cx="1285" cy="500" r="17" fill="#fff"/>
+ <path d="M1386 346 C1335 299 1303 273 1308 238 C1312 207 1350 198 1378 226 C1402 195 1447 207 1455 243 C1461 274 1431 307 1386 346Z" fill="#f15e50" stroke="#fff" stroke-width="9" stroke-linejoin="round"/>
+ <g stroke="#fdbb21" stroke-width="14" stroke-linecap="round"><path d="M1381 185V158"/><path d="M1337 190l-18-24"/><path d="M1427 186l18-25"/></g>
 </g>
 </svg>

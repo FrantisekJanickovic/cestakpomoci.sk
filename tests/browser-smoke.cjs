@@ -26,7 +26,7 @@ const assert = require("node:assert/strict");
     const illustration=await page.request.get("http://127.0.0.1:4173/hero-journey.svg");
     assert.equal(illustration.status(),200);
     const illustrationText=await illustration.text();
-    for(const step of ["Situácia","Sprievodca","Zdroje","Ambulancia","Pomoc"]) assert.ok(illustrationText.includes(step));
+    assert.ok(illustrationText.includes("Cesta k pomoci"));
     const favicon=await page.request.get("http://127.0.0.1:4173/favicon.svg");
     assert.equal(favicon.status(),200);
     assert.match(await favicon.text(),/<svg/);
