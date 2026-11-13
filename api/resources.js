@@ -1,4 +1,5 @@
 module.exports = async function handler(request, response) {
+  response.setHeader("X-Content-Type-Options", "nosniff");
   if (request.method !== "GET") {
     response.setHeader("Allow", "GET");
     return response.status(405).json({ error: "Method not allowed" });
@@ -18,7 +19,8 @@ module.exports = async function handler(request, response) {
 
   try {
     const result = await fetch(url, {
-      headers: { apikey: publishableKey, Authorization: `Bearer ${publishableKey}` },
+      headers: { apikey: publishableKey, ...(!publishableKey.startsWith("sb_") ? { Authorization: `Bearer ${publishableKey}` } : {}) },
+      signal: AbortSignal.timeout(8000),
     });
     if (!result.ok) throw new Error(`Supabase returned ${result.status}`);
     const data = await result.json();

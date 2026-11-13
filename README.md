@@ -9,15 +9,17 @@ Technický základ slovenskej platformy, ktorá má prepájať:
 
 ## Aktuálny stav
 
-- statická úvodná stránka nasadená na [cestakpomoci-sk.vercel.app](https://cestakpomoci-sk.vercel.app),
+- aplikácia nasadená na [cestakpomoci-sk.vercel.app](https://cestakpomoci-sk.vercel.app),
 - produkčný Vercel projekt je prepojený s vetvou `main`,
 - Supabase databáza vo Frankfurte je aktívna a prepojená cez publishable key,
 - nasadená databázová schéma je zachytená v `supabase/schema.sql`,
 - verejná knižnica obsahuje 83 klasifikovaných a publikovaných zdrojov,
-- adresár ambulancií odlišuje overené kontakty od kandidátov čakajúcich na kontrolu,
-- používateľské zdravotné údaje sa v tejto fáze nezbierajú,
-- verejné údaje sú oddelené od účtov pracovníkov ambulancií,
-- kapacitné hlásenia sú navrhnuté ako append-only záznamy s auditnou stopou.
+- adresár ambulancií odlišuje aktuálne a zastarané kontakty aj kapacitné hlásenia,
+- šesťkrokový sprievodca odporúča materiály a ambulancie bez pýtania mena, kontaktu či diagnózy,
+- akútna situácia preskočí priamo na krízovú pomoc a neodosiela sa do analytiky,
+- anonymná analytika ukladá iba široký vek, kraj, tému, typ pomoci a počet výsledkov,
+- každá ambulancia môže aktualizovať svoju kapacitu vlastným odkazom bez hesla; platnosť údaja je 14 dní,
+- kontakty staršie než 90 dní a expirovaná kapacita sa automaticky označia na opätovné overenie.
 
 ## Databázové moduly
 
@@ -28,7 +30,11 @@ Technický základ slovenskej platformy, ktorá má prepájať:
 5. `content_resources` – overené slovenské a zahraničné zdroje,
 6. `learning_paths` a `learning_path_steps` – usporiadané cesty podľa situácie.
 
-Všetky tabuľky v schéme `public` majú zapnuté Row Level Security. Verejnosť môže čítať iba publikované údaje. Kapacitu môže odoslať iba prihlásený aktívny člen príslušnej ambulancie.
+Všetky tabuľky v schéme `public` majú zapnuté Row Level Security. Verejnosť môže čítať iba publikované údaje. Zápis kapacity povoľuje politika iba ambulancii s presným hashom jej náhodného odkazu; surový token sa v databáze neukladá. Aplikácia nepoužíva `service_role` kľúč.
+
+## Vydanie odkazu ambulancii
+
+Administrátor spustí `supabase/issue-capacity-link.sql` v Supabase SQL Editore po nahradení `REPLACE_WITH_EXTERNAL_ID`. Dotaz vytvorí nový náhodný token, uloží iba jeho SHA-256 hash a jednorazovo vráti odkaz pre ambulanciu. Odkaz posielajte overenému kontaktu ambulancie a pri zmene personálu ho vymeňte za nový.
 
 ## Lokálne spustenie
 
@@ -38,11 +44,11 @@ Všetky tabuľky v schéme `public` majú zapnuté Row Level Security. Verejnos�
 npx serve .
 ```
 
-## Ďalší krok
+## Prevádzkové ďalšie kroky
 
 1. pripojiť zakúpenú doménu `cestakpomoci.sk`,
-2. doplniť prihlasovanie a onboarding pracovníkov ambulancií,
-3. vytvoriť formulár na odosielanie kapacity,
-4. pokračovať v redakčnom overovaní kontaktov ambulancií,
-5. dopracovať vedenú funkciu „Nájsť moju cestu“.
+2. vybrať 3–5 pilotných ambulancií a vydať im individuálne odkazy,
+3. nastaviť vlastníka a rytmus redakčného overovania kontaktov,
+4. sledovať iba agregované metriky nedostatku pomoci,
+5. po pilote doplniť administrátorský panel a rotáciu odkazov.
 
