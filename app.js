@@ -271,7 +271,7 @@ function resourceCard(item,compact=false) {
       ${item.excerpt_sk?`<p class="resource-excerpt">${escapeHtml(item.excerpt_sk)}</p>`:""}
       <div class="chips">${topics}</div>
       ${!compact?`<div class="card-meta"><span>Vek <b>${escapeHtml(item.age_raw || (item.age_groups || []).join(", "))}</b></span><span>Cena <b>${escapeHtml(item.price_type || "Neuvedené")}</b></span></div>`:""}
-      <div class="card-actions">${url ? `<a class="button button-primary" href="/api/resource-open?id=${encodeURIComponent(item.id)}" target="_blank" rel="noopener noreferrer">Otvoriť ↗</a>` : ""}<a class="button button-outline" href="/material.html?id=${encodeURIComponent(item.id)}">Detail →</a></div>
+      <div class="card-actions">${url ? `<a class="button button-primary" href="/api/resource-open?id=${encodeURIComponent(item.id)}" target="_blank" rel="noopener noreferrer">Otvoriť</a>` : ""}<a class="button button-outline" href="/material.html?id=${encodeURIComponent(item.id)}">Detail</a></div>
     </article>`;
 }
 
@@ -362,7 +362,7 @@ function choiceButtons(options, key) {
 
 function journeyShell(title, description, body, step) {
   const progress = Math.round((step / 6) * 100);
-  return `<div class="journey-head"><div><p class="eyebrow">Nájsť moju cestu · krok ${step} zo 6</p><h2 id="journey-title">${title}</h2></div><div class="journey-progress" aria-label="Dokončené ${progress} %"><span style="width:${progress}%"></span></div></div>${description ? `<p class="journey-description">${description}</p>` : ""}${body}${step > 1 ? `<button type="button" class="button button-soft journey-back" id="journey-back">← Späť</button>` : ""}<p class="journey-privacy">Bez mena, kontaktu, diagnózy a voľného zdravotného textu.</p>`;
+  return `<div class="journey-head"><div><p class="eyebrow">Nájsť moju cestu · krok ${step} zo 6</p><h2 id="journey-title">${title}</h2></div><div class="journey-progress" aria-label="Dokončené ${progress} %"><span data-progress="${progress}"></span></div></div>${description ? `<p class="journey-description">${description}</p>` : ""}${body}${step > 1 ? `<button type="button" class="button button-soft journey-back" id="journey-back">← Späť</button>` : ""}<p class="journey-privacy">Bez mena, kontaktu, diagnózy a voľného zdravotného textu.</p>`;
 }
 
 function startJourney() {
@@ -399,6 +399,8 @@ function renderJourney() {
     });
   }
 
+  // CSP blokuje inline štýly, šírku ukazovateľa preto nastavujeme cez CSSOM.
+  $$("[data-progress]", content).forEach((bar) => { bar.style.width = `${bar.dataset.progress}%`; });
   $("#journey-back")?.addEventListener("click", () => { state.journey.step -= 1; renderJourney(); });
   $$('[data-journey-key]', content).forEach((button) => button.addEventListener("click", () => {
     const key = button.dataset.journeyKey; const value = button.dataset.journeyValue;

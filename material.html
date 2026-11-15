@@ -6,9 +6,9 @@
 <link rel="stylesheet" href="/styles.css">
 <script src="/material.js" defer></script></head><body>
 <header class="site-header"><div class="nav-shell detail-nav">
-<a class="brand" href="/#domov"><span class="brand-mark" aria-hidden="true">♡</span><span>Cesta k pomoci</span></a>
+<a class="brand" href="/#domov"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 34 34"><path d="M8 23.5c3.2-7 7.7-11.4 15.5-14M12 12.5c3.1-.2 5.7.8 7.8 3M11 25.5h12" /></svg></span><span>Cesta k pomoci</span></a>
 <nav class="desktop-nav" aria-label="Navigácia"><a href="/#domov">Domov</a><a href="/#zdroje">Materiály</a><a href="/#ambulancie">Ambulancie</a></nav>
-<a href="/#zdroje" class="button button-outline">← Späť do knižnice</a></div></header>
+<a href="/#zdroje" class="button button-outline">Späť do knižnice</a></div></header>
 <main class="material-page">
 <div class="material-breadcrumb"><a href="/#zdroje">Materiály</a><span aria-hidden="true">/</span><span id="detail-crumb">Detail materiálu</span></div>
 <div id="detail-status" role="status">Načítavam podrobnosti materiálu…</div>
@@ -29,7 +29,7 @@
     <aside class="material-info"><h2>Rýchly prehľad</h2><dl id="detail-facts"></dl></aside>
   </div>
   <section class="material-feedback" id="feedback-section" aria-labelledby="reviews-heading">
-    <div class="home-section-header"><div><p class="eyebrow">Skúsenosti čitateľov</p><h2 id="reviews-heading">Hodnotenia a komentáre</h2></div></div>
+    <div class="home-section-header"><h2 id="reviews-heading">Hodnotenia a komentáre</h2></div>
     <p class="material-privacy">Komentáre pred zverejnením kontrolujeme. Nepíš sem meno dieťaťa, diagnózu, adresu ani iné osobné alebo zdravotné údaje. Žiadna registrácia nie je potrebná. Na ochranu pred spamom spracúvame zabezpečený pseudonymný odtlačok IP adresy a prehliadača; surovú IP v databáze komentárov neukladáme.</p>
     <div class="feedback-layout">
       <form id="review-form" class="review-form">
@@ -44,7 +44,7 @@
         <label class="review-input">Prezývka (nepovinné)<input name="name" maxlength="35" autocomplete="nickname" placeholder="Anonym"></label>
         <label class="review-input">Komentár (nepovinný)<textarea name="comment" minlength="8" maxlength="1200" rows="5" placeholder="V čom bol materiál užitočný? Nepíš osobné ani zdravotné údaje."></textarea></label>
         <label class="spam-honeypot" aria-hidden="true" tabindex="-1">Website<input name="website" type="text" autocomplete="off" tabindex="-1"></label>
-        <button type="submit" class="button button-primary">Odoslať na kontrolu →</button>
+        <button type="submit" class="button button-primary">Odoslať na kontrolu</button>
         <p id="review-message" role="status" aria-live="polite"></p>
       </form>
       <div class="review-feed"><h3>Zverejnené komentáre</h3><div id="published-reviews"><p>Zatiaľ tu nie sú schválené komentáre.</p></div></div>
