@@ -164,7 +164,7 @@ async function loadData() {
 
   if (resourcesResult.status === "fulfilled" && resourcesResult.value.ok) {
     state.resources = await resourcesResult.value.json();
-    $("#resource-count").textContent = state.resources.length;
+    if($("#resource-count"))$("#resource-count").textContent = state.resources.length;
     populateSelect("#topic-filter", uniqueSorted(state.resources.flatMap((item) => item.topics || [])));
     populateSelect("#audience-filter", uniqueSorted(state.resources.flatMap((item) => item.audience || [])));
     populateSelect("#age-filter", uniqueSorted(state.resources.flatMap((item) => item.age_groups || [])));
@@ -180,7 +180,7 @@ async function loadData() {
 
   if (ambulancesResult.status === "fulfilled" && ambulancesResult.value.ok) {
     state.ambulances = await ambulancesResult.value.json();
-    $("#ambulance-count").textContent = state.ambulances.length;
+    if($("#ambulance-count"))$("#ambulance-count").textContent = state.ambulances.length;
     populateSelect("#region-filter", uniqueSorted(state.ambulances.map((item) => item.region)));
     renderAmbulances();
   } else {
