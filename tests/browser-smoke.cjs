@@ -58,6 +58,7 @@ const assert = require("node:assert/strict");
       ])
     }));
     await page.reload({waitUntil:"load"});
+    console.log("RESOURCE_DIAG",jsErrors,await page.locator("#resource-language").count(),await page.locator("#resource-language option").count());
     await page.locator("#resource-language option[value=cs]").waitFor({state:"attached"});
     assert.equal(await page.locator("#latest-resource-list .resource-card").count(),3);
     assert.ok(await page.locator("#top-rated-section").isHidden());
