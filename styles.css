@@ -754,3 +754,14 @@ body{background:#fff;line-height:1.62}
  .card-actions .button{min-width:105px}
 }
 @media(max-width:430px){.benefits-grid{grid-template-columns:1fr 1fr}.benefit{padding:21px 9px;min-height:190px}.benefit p{font-size:12px}.stars-input label{font-size:12px}}
+
+/* Hero artwork spans the full wide canvas: the left side stays white for copy. */
+@media(min-width:781px){
+ .homepage-view .hero{position:relative;display:flex;align-items:center;isolation:isolate}
+ .homepage-view .hero-copy{position:relative;z-index:2;width:48%;max-width:520px}
+ .homepage-view .hero-visual{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+ .homepage-view .hero-visual img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center center}
+}
+@media(max-width:780px){
+ .homepage-view .hero-visual img{left:0;top:0;width:100%;height:100%;object-fit:cover;object-position:right center}
+}
