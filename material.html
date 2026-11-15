@@ -33,7 +33,7 @@
     <p class="material-privacy">Komentáre pred zverejnením kontrolujeme. Nepíš sem meno dieťaťa, diagnózu, adresu ani iné osobné alebo zdravotné údaje. Žiadna registrácia nie je potrebná.</p>
     <div class="feedback-layout">
       <form id="review-form" class="review-form">
-        <h3>Ohodnoť tento materiál</h3>
+        <h3>Ohodnoť tento materiál (1–5 hviezdičiek)</h3>
         <fieldset class="stars-input"><legend>Počet hviezdičiek</legend>
           <label><input type="radio" name="rating" value="1" required>1 ★</label>
           <label><input type="radio" name="rating" value="2">2 ★</label>
@@ -42,7 +42,7 @@
           <label><input type="radio" name="rating" value="5">5 ★</label>
         </fieldset>
         <label class="review-input">Prezývka (nepovinné)<input name="name" maxlength="35" autocomplete="nickname" placeholder="Anonym"></label>
-        <label class="review-input">Komentár<textarea name="comment" minlength="8" maxlength="1200" rows="5" required placeholder="V čom bol materiál užitočný? Nepíš osobné ani zdravotné údaje."></textarea></label>
+        <label class="review-input">Komentár (nepovinný)<textarea name="comment" minlength="8" maxlength="1200" rows="5" placeholder="V čom bol materiál užitočný? Nepíš osobné ani zdravotné údaje."></textarea></label>
         <label class="spam-honeypot" aria-hidden="true" tabindex="-1">Website<input name="website" type="text" autocomplete="off" tabindex="-1"></label>
         <button type="submit" class="button button-primary">Odoslať na kontrolu →</button>
         <p id="review-message" role="status" aria-live="polite"></p>
