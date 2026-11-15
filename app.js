@@ -235,16 +235,16 @@ function ratingMarkup(item){
 function renderHomeResources(){
  const items=state.resources.slice();
  const news=items.sort((a,b)=>Date.parse(b.created_at||0)-Date.parse(a.created_at||0)||collator.compare(a.title,b.title)).slice(0,3);
- $("#latest-resource-list").innerHTML=news.map(resourceCard).join("");
+ $("#latest-resource-list").innerHTML=news.map(x=>resourceCard(x,true)).join("");
  const rated=items.filter(x=>Number(x.rating_count||0)>0)
    .sort((a,b)=>(Number(b.rating_sum)/Number(b.rating_count))-(Number(a.rating_sum)/Number(a.rating_count))
      || Number(b.rating_count)-Number(a.rating_count)).slice(0,3);
  $("#top-rated-section").hidden=rated.length===0;
- $("#top-rated-resource-list").innerHTML=rated.map(resourceCard).join("");
+ $("#top-rated-resource-list").innerHTML=rated.map(x=>resourceCard(x,true)).join("");
  const opened=items.filter(x=>Number(x.open_count||0)>0)
    .sort((a,b)=>Number(b.open_count)-Number(a.open_count)).slice(0,3);
  $("#most-opened-section").hidden=opened.length===0;
- $("#most-opened-resource-list").innerHTML=opened.map(resourceCard).join("");
+ $("#most-opened-resource-list").innerHTML=opened.map(x=>resourceCard(x,true)).join("");
 }
 function isFreeResource(item) {
   const price=(item.price_type||"").trim().toLocaleLowerCase("sk");
@@ -256,21 +256,21 @@ function isFreeResource(item) {
   return access==="voľne prístupný externý zdroj" || access==="voľne dostupný web";
 }
 
-function resourceCard(item) {
+function resourceCard(item,compact=false) {
   const free=isFreeResource(item);
   const url = safeUrl(item.source_url);
   const topics = (item.topics || []).slice(0, 2).map((topic) => `<span class="chip topic">${escapeHtml(topic)}</span>`).join("");
   const audiences = (item.audience || []).slice(0, 2).map((audience) => `<span class="chip">${escapeHtml(audience)}</span>`).join("");
   return `
-    <article class="resource-card${free ? " resource-card-free" : ""}">
+    <article class="resource-card${free ? " resource-card-free" : ""}${compact ? " resource-card-compact" : ""}">
       ${free ? `<span class="free-ribbon" aria-label="Zdarma">ZDARMA</span>` : ""}
       <div class="card-top"><span class="format-tag" title="${escapeHtml(item.resource_format || "Zdroj")}">${escapeHtml(item.resource_format || "Zdroj")}</span>${item.evidence_level ? `<span class="evidence-tag" title="Úroveň verejne dostupných dôkazov">${escapeHtml(item.evidence_level)}</span>` : ""}</div>
       <h3>${escapeHtml(item.title)}</h3><p class="owner">${escapeHtml(item.owner_name)}</p>
       ${ratingMarkup(item)}
-      <p class="resource-languages">Dostupné: ${escapeHtml((item.available_language_codes||[item.language_code||"sk"]).map(languageLabel).join(", "))} · Originál: ${escapeHtml(item.original_language_code?languageLabel(item.original_language_code):"nezistený")} · Pôvod: ${escapeHtml(item.source_country_code?countryLabel(item.source_country_code):"nezistený")}</p>
+      <p class="resource-languages">${escapeHtml((item.available_language_codes||[item.language_code||"sk"]).map(languageLabel).slice(0,2).join(", "))} · ${escapeHtml(item.source_country_code?countryLabel(item.source_country_code):"Pôvod nezistený")}</p>
       ${item.excerpt_sk?`<p class="resource-excerpt">${escapeHtml(item.excerpt_sk)}</p>`:""}
-      <div class="chips">${topics}${audiences}</div>
-      <div class="card-meta"><span>Vek <b>${escapeHtml(item.age_raw || (item.age_groups || []).join(", "))}</b></span><span>Prístup <b>${escapeHtml(item.access_type || "Neuvedené")}</b></span><span>Cena <b>${escapeHtml(item.price_type || "Neuvedené")}</b></span></div>
+      <div class="chips">${topics}</div>
+      ${!compact?`<div class="card-meta"><span>Vek <b>${escapeHtml(item.age_raw || (item.age_groups || []).join(", "))}</b></span><span>Cena <b>${escapeHtml(item.price_type || "Neuvedené")}</b></span></div>`:""}
       <div class="card-actions">${url ? `<a class="button button-primary" href="/api/resource-open?id=${encodeURIComponent(item.id)}" target="_blank" rel="noopener noreferrer">Otvoriť ↗</a>` : ""}<a class="button button-outline" href="/material.html?id=${encodeURIComponent(item.id)}">Detail →</a></div>
     </article>`;
 }
