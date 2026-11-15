@@ -18,7 +18,8 @@ async function request(c,path,options={}){
    cache:"no-store"
  });
  if(!r.ok) {const err=new Error("Storage error "+r.status);err.status=r.status;throw err;}
- return r.status===204?null:r.json();
+ if(r.status===204||r.status===201 && options.headers?.Prefer==="return=minimal")return null;
+ const raw=await r.text();return raw?JSON.parse(raw):null;
 }
 function validId(value){return typeof value==="string"&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);}
 function fingerprint(c,req,id){
