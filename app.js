@@ -173,6 +173,7 @@ async function loadData() {
     populateMappedSelect("#resource-country",state.resources.map(item=>item.source_country_code).filter(Boolean),countryLabel);
     renderCountryFlags();
     renderResources();
+    renderHomeResources();
   } else {
     renderError("#resource-list", "Zdroje sa momentálne nepodarilo načítať.");
   }
@@ -225,6 +226,26 @@ function renderResources() {
   $("#load-more-resources").hidden = filtered.length <= state.resourceLimit;
 }
 
+function ratingMarkup(item){
+ const count=Number(item.rating_count||0);
+ if(!count)return "";
+ const average=Number(item.rating_sum||0)/count;
+ return `<p class="rating-line" aria-label="Priemer ${average.toFixed(1)} z 5 podľa ${count} schválených hodnotení"><span class="rating-stars" aria-hidden="true">${"★".repeat(Math.round(average))}${"☆".repeat(5-Math.round(average))}</span> <strong>${average.toFixed(1)}</strong> <small>(${count})</small></p>`;
+}
+function renderHomeResources(){
+ const items=state.resources.slice();
+ const news=items.sort((a,b)=>Date.parse(b.created_at||0)-Date.parse(a.created_at||0)||collator.compare(a.title,b.title)).slice(0,3);
+ $("#latest-resource-list").innerHTML=news.map(resourceCard).join("");
+ const rated=items.filter(x=>Number(x.rating_count||0)>0)
+   .sort((a,b)=>(Number(b.rating_sum)/Number(b.rating_count))-(Number(a.rating_sum)/Number(a.rating_count))
+     || Number(b.rating_count)-Number(a.rating_count)).slice(0,3);
+ $("#top-rated-section").hidden=rated.length===0;
+ $("#top-rated-resource-list").innerHTML=rated.map(resourceCard).join("");
+ const opened=items.filter(x=>Number(x.open_count||0)>0)
+   .sort((a,b)=>Number(b.open_count)-Number(a.open_count)).slice(0,3);
+ $("#most-opened-section").hidden=opened.length===0;
+ $("#most-opened-resource-list").innerHTML=opened.map(resourceCard).join("");
+}
 function isFreeResource(item) {
   const price=(item.price_type||"").trim().toLocaleLowerCase("sk");
   const access=(item.access_type||"").trim().toLocaleLowerCase("sk");
@@ -245,11 +266,12 @@ function resourceCard(item) {
       ${free ? `<span class="free-ribbon" aria-label="Zdarma">ZDARMA</span>` : ""}
       <div class="card-top"><span class="format-tag" title="${escapeHtml(item.resource_format || "Zdroj")}">${escapeHtml(item.resource_format || "Zdroj")}</span>${item.evidence_level ? `<span class="evidence-tag" title="Úroveň verejne dostupných dôkazov">${escapeHtml(item.evidence_level)}</span>` : ""}</div>
       <h3>${escapeHtml(item.title)}</h3><p class="owner">${escapeHtml(item.owner_name)}</p>
+      ${ratingMarkup(item)}
       <p class="resource-languages">Dostupné: ${escapeHtml((item.available_language_codes||[item.language_code||"sk"]).map(languageLabel).join(", "))} · Originál: ${escapeHtml(item.original_language_code?languageLabel(item.original_language_code):"nezistený")} · Pôvod: ${escapeHtml(item.source_country_code?countryLabel(item.source_country_code):"nezistený")}</p>
       ${item.excerpt_sk?`<p class="resource-excerpt">${escapeHtml(item.excerpt_sk)}</p>`:""}
       <div class="chips">${topics}${audiences}</div>
       <div class="card-meta"><span>Vek <b>${escapeHtml(item.age_raw || (item.age_groups || []).join(", "))}</b></span><span>Prístup <b>${escapeHtml(item.access_type || "Neuvedené")}</b></span><span>Cena <b>${escapeHtml(item.price_type || "Neuvedené")}</b></span></div>
-      ${url ? `<a class="card-link" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">Otvoriť zdroj <span aria-hidden="true">→</span></a>` : ""}
+      <div class="card-actions">${url ? `<a class="button button-primary" href="/api/resource-open?id=${encodeURIComponent(item.id)}" target="_blank" rel="noopener noreferrer">Otvoriť ↗</a>` : ""}<a class="button button-outline" href="/material.html?id=${encodeURIComponent(item.id)}">Detail →</a></div>
     </article>`;
 }
 
@@ -324,7 +346,7 @@ function renderError(selector, message) {
 function setView(view, scroll = true) {
   $$('[data-view]').forEach((section) => { const active = section.dataset.view === view; section.hidden = !active; section.classList.toggle("is-active", active); });
   $$(".nav-link").forEach((button) => button.classList.toggle("is-active", button.dataset.viewLink === view));
-  const hash = { resources: "zdroje", ambulances: "ambulancie", about: "o-projekte" }[view];
+  const hash = { home: "domov", resources: "zdroje", ambulances: "ambulancie", about: "o-projekte" }[view];
   if (hash) history.replaceState(null, "", `#${hash}`);
   if (scroll) $(`#${view}-view`)?.scrollIntoView({ behavior: "smooth", block: "start" });
   closeMobileMenu();
@@ -556,5 +578,5 @@ bindEvents();
 renderLearningPaths();
 const capacityLink = parseCapacityLink();
 const initialHash = location.hash.replace("#", "");
-if (!capacityLink) setView({ ambulancie: "ambulances", "o-projekte": "about" }[initialHash] || "resources", false);
+if (!capacityLink) setView({ domov:"home", zdroje:"resources", ambulancie: "ambulances", "o-projekte": "about" }[initialHash] || "home", false);
 loadData();
