@@ -8,6 +8,12 @@ on:
       - "api/**"
       - "supabase/**"
       - "tests/**"
+      - "index.html"
+      - "material.html"
+      - "material.js"
+      - "app.js"
+      - "styles.css"
+      - "hero-journey.svg"
       - ".github/workflows/api-tests.yml"
 permissions:
   contents: read
@@ -23,6 +29,10 @@ jobs:
         with:
           node-version: "22"
       - run: node --check app.js
+      - run: node --check material.js
+      - run: node --check api/resource-open.js
+      - run: node --check api/resource-feedback.js
+      - run: node --check api/_resource-utils.js
       - run: node --check learning-paths.js
       - run: node --check api/capacity.js
       - run: node --check api/demand.js
