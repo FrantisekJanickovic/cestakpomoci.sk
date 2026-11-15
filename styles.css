@@ -181,9 +181,8 @@ h3 { margin-bottom: 0.6rem; font-size: 1.2rem; font-weight: 600; letter-spacing:
 .resource-card:hover { border-color: #c5d6dd; box-shadow: var(--shadow); }
 .card-top { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin-bottom: 1rem; }
 .resource-card-free .card-top { padding-right: 4.2rem; }
-.format-tag, .evidence-tag, .status-tag { display: inline-flex; align-items: center; min-height: 26px; padding: 0.15rem 0.65rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
-.format-tag { max-width: 70%; overflow: hidden; background: var(--mist); color: var(--teal-dark); text-overflow: ellipsis; white-space: nowrap; }
-.evidence-tag { background: var(--sun-soft); color: #7a5a10; }
+.format-tag, .status-tag { display: inline-flex; align-items: center; min-height: 26px; padding: 0.15rem 0.65rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
+.format-tag { max-width: 100%; overflow: hidden; background: var(--mist); color: var(--teal-dark); text-overflow: ellipsis; white-space: nowrap; }
 .resource-card h3 { margin-bottom: 0.35rem; overflow-wrap: anywhere; }
 .owner { margin-bottom: 0.6rem; color: var(--muted); font-size: 0.9rem; }
 .resource-languages { margin: 0 0 0.7rem; color: var(--soft-muted); font-size: 0.82rem; }
@@ -348,6 +347,7 @@ footer > a { font-weight: 600; text-decoration: none; color: var(--ink); }
 .material-info dl > div:last-child { border-bottom: 0; padding-bottom: 0; }
 .material-info dt { margin-bottom: 0.15rem; color: var(--soft-muted); font-size: 0.8rem; }
 .material-info dd { margin: 0; font-size: 0.95rem; font-weight: 600; }
+.material-info small { display: block; margin-top: 0.2rem; color: var(--soft-muted); font-size: 0.78rem; line-height: 1.4; }
 .material-feedback { padding-top: 3.5rem; border-top: 1px solid var(--line); }
 .material-privacy { max-width: 70ch; color: var(--muted); font-size: 0.92rem; }
 .feedback-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-top: 2.25rem; }

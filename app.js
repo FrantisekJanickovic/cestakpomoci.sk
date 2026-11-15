@@ -264,7 +264,7 @@ function resourceCard(item,compact=false) {
   return `
     <article class="resource-card${free ? " resource-card-free" : ""}${compact ? " resource-card-compact" : ""}">
       ${free ? `<span class="free-ribbon" aria-label="Zdarma">ZDARMA</span>` : ""}
-      <div class="card-top"><span class="format-tag" title="${escapeHtml(item.resource_format || "Zdroj")}">${escapeHtml(item.resource_format || "Zdroj")}</span>${item.evidence_level ? `<span class="evidence-tag" title="Úroveň verejne dostupných dôkazov">${escapeHtml(item.evidence_level)}</span>` : ""}</div>
+      <div class="card-top"><span class="format-tag" title="${escapeHtml(item.resource_format || "Zdroj")}">${escapeHtml(item.resource_format || "Zdroj")}</span></div>
       <h3>${escapeHtml(item.title)}</h3><p class="owner">${escapeHtml(item.owner_name)}</p>
       ${ratingMarkup(item)}
       <p class="resource-languages">${escapeHtml((item.available_language_codes||[item.language_code||"sk"]).map(languageLabel).slice(0,2).join(", "))} · ${escapeHtml(item.source_country_code?countryLabel(item.source_country_code):"Pôvod nezistený")}</p>

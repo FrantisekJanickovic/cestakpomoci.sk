@@ -9,6 +9,12 @@ function ratingView(item){
  const avg=Number(item.rating_sum||0)/n;
  return '<p class="rating-line"><span class="rating-stars" aria-hidden="true">'+("★".repeat(Math.round(avg))+"☆".repeat(5-Math.round(avg)))+'</span> '+avg.toFixed(1)+' / 5 · '+n+' hodnotení</p>';
 }
+// Opisuje typ odborného podloženia, nie rebríček účinnosti. Kódy E1–E4 sa návštevníkovi neukazujú.
+const BACKING={E1:"Oficiálny alebo etablovaný program",E2:"Odborná metodika",E3:"Etablovaná služba alebo informačný zdroj",E4:"Komerčný odborný obsah"};
+function backingFact(level){
+ if(!BACKING[level])return "";
+ return '<div><dt>Odborné podloženie</dt><dd>'+esc(BACKING[level])+'</dd><small>Opisuje typ zdroja, nie preukázanú účinnosť.</small></div>';
+}
 function fact(label,value){return '<div><dt>'+esc(label)+'</dt><dd>'+esc(value||"Neuvedené")+'</dd></div>';}
 async function main(){
  const id=new URLSearchParams(location.search).get("id")||"";
@@ -32,6 +38,7 @@ async function main(){
    fact("Krajina pôvodu",label(item.source_country_code)),
    fact("Jazyk materiálu",(item.available_language_codes||[item.language_code]).map(lang).join(", ")),
    fact("Veková skupina",(item.age_groups||[]).join(", ")||item.age_raw),
+   backingFact(item.evidence_level),
    fact("Formát",item.resource_format),
    fact("Cena",item.price_type),
    fact("Prístup",item.access_type),
