@@ -10,7 +10,7 @@ module.exports=async function handler(req,res){
  if(!c)return res.status(503).json({error:"Hodnotenia sú momentálne nedostupné."});
  try {
   if(req.method==="GET"){
-   const filter="resource_feedback?select=id,display_name,body,rating,created_at&resource_id=eq."+encodeURIComponent(id)+"&status=eq.approved&order=created_at.desc&limit=30";
+   const filter="resource_feedback?select=id,display_name,body,rating,created_at&resource_id=eq."+encodeURIComponent(id)+"&status=eq.approved&body=not.is.null&order=created_at.desc&limit=30";
    const rows=await request(c,filter);
    return res.status(200).json({comments:rows||[]});
   }
@@ -21,14 +21,14 @@ module.exports=async function handler(req,res){
   const name=clean(body.name,35)||"Anonym";
   const comment=clean(body.comment,1201);
   const rating=Number(body.rating);
-  if(comment.length<8||comment.length>1200||!Number.isInteger(rating)||rating<1||rating>5||name.length>35)
+  if((comment.length>0&&comment.length<8)||comment.length>1200||!Number.isInteger(rating)||rating<1||rating>5||name.length>35)
    return res.status(400).json({error:"Napíš aspoň 8 znakov a vyber 1–5 hviezdičiek."});
   if(/https?:\/\/|\bwww\./i.test(comment))return res.status(400).json({error:"Komentár nesmie obsahovať externé odkazy."});
   const exists=await request(c,"content_resources?select=id&is_published=eq.true&id=eq."+encodeURIComponent(id)+"&limit=1");
   if(!exists?.length)return res.status(404).json({error:"Materiál sa nenašiel."});
   const hash=fingerprint(c,req,id);
   try{
-   await request(c,"resource_feedback",{method:"POST",body:{resource_id:id,display_name:name,body:comment,rating,actor_hash:hash,status:"pending"},headers:{"Prefer":"return=minimal"}});
+   await request(c,"resource_feedback",{method:"POST",body:{resource_id:id,display_name:name,body:comment||null,rating,actor_hash:hash,status:"pending"},headers:{"Prefer":"return=minimal"}});
   }catch(e){if(e.status===409)return res.status(429).json({error:"Z tohto zariadenia už bol materiál hodnotený. Ďalšie hodnotenie môžeš odoslať po moderácii iba pri zamietnutí pôvodného."});throw e;}
   return res.status(202).json({message:"Ďakujeme. Komentár aj hodnotenie zverejníme až po kontrole."});
  }catch(e){console.error("Resource feedback failure",e.message);return res.status(502).json({error:"Hodnotenie sa nepodarilo odoslať."});}
