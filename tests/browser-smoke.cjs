@@ -18,9 +18,9 @@ const assert = require("node:assert/strict");
     assert.ok(loaded, "local server failed to start");
     await page.waitForLoadState("load");
     // Hero must communicate the offer, show one coherent visual journey and provide an icon.
-    assert.match(await page.locator("#hero-title").innerText(),/dieťa potrebuje pomoc/);
-    assert.match(await page.locator(".hero-lead").innerText(),/sprievodca/i);
-    assert.match(await page.locator(".hero-lead").innerText(),/ambulancie/i);
+    assert.match(await page.locator("#hero-title").innerText(),/kde začať/);
+    assert.match(await page.locator(".hero-lead").innerText(),/zorientuj sa/i);
+    assert.match(await page.locator(".hero-lead").innerText(),/kontakt na pomoc/i);
     assert.equal(await page.locator(".hero-visual img").getAttribute("src"),"/hero-journey.svg");
     assert.equal(await page.locator("link[rel=icon]").getAttribute("href"),"/favicon.svg");
     const illustration=await page.request.get("http://127.0.0.1:4173/hero-journey.svg");
@@ -36,6 +36,11 @@ const assert = require("node:assert/strict");
     assert.ok((await page.locator(".hero-copy").boundingBox()).width<=390);
     await page.setViewportSize({width:1280,height:850});
 
+    assert.ok(await page.locator("#home-view").isVisible());
+    assert.ok(await page.locator("#resources-view").isHidden());
+    assert.equal(await page.locator(".benefit").count(),6);
+    assert.ok(await page.locator("#top-rated-section").isHidden());
+    assert.ok(await page.locator("#most-opened-section").isHidden());
     // Multilingual catalogue controls must exist and actually filter results.
     await page.route("**/api/resources",route=>route.fulfill({
       status:200,contentType:"application/json",
@@ -54,10 +59,13 @@ const assert = require("node:assert/strict");
     }));
     await page.reload({waitUntil:"load"});
     await page.locator("#resource-language option[value=cs]").waitFor({state:"attached"});
-    assert.equal(await page.locator(".resource-card-free").count(),2);
-    assert.equal(await page.locator(".free-ribbon").count(),2);
-    assert.equal(await page.locator(".free-ribbon").first().innerText(),"ZDARMA");
-    assert.ok(!(await page.locator(".resource-card").filter({hasText:"Český zdroj"}).locator(".free-ribbon").count()));
+    assert.equal(await page.locator("#latest-resource-list .resource-card").count(),3);
+    assert.ok(await page.locator("#top-rated-section").isHidden());
+    await page.locator('[data-view-link="resources"]').first().click();
+    assert.equal(await page.locator("#resource-list .resource-card-free").count(),2);
+    assert.equal(await page.locator("#resource-list .free-ribbon").count(),2);
+    assert.equal(await page.locator("#resource-list .free-ribbon").first().innerText(),"ZDARMA");
+    assert.ok(!(await page.locator("#resource-list .resource-card").filter({hasText:"Český zdroj"}).locator(".free-ribbon").count()));
 
     // Flag quick filters are built from live data; selection is exclusive.
     const flagButtons=page.locator("#resource-country-flags [data-country-code]");
@@ -79,6 +87,8 @@ const assert = require("node:assert/strict");
     await page.locator('[data-country-code="CZ"]').click();
     assert.equal(await page.locator("#resource-country").inputValue(),"");
     assert.equal(await page.locator("#resource-results-count").innerText(),"3");
+    assert.equal(await page.locator("#resource-list .card-actions a").count(),6);
+    assert.ok((await page.locator("#resource-list .card-actions").first().innerText()).includes("Detail"));
     await page.locator("#resource-country").selectOption("FI");
     assert.equal(await page.locator('[data-country-code="FI"]').getAttribute("aria-pressed"),"true");
     await page.locator("#clear-resource-filters").click();
