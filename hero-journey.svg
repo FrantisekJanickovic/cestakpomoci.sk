@@ -1,28 +1,37 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 880" role="img" aria-labelledby="ht hd">
-<title id="ht">Cesta k pomoci – od začiatku až k podpore</title>
-<desc id="hd">Kľukatá cesta vedie od prvého kroku po srdce symbolizujúce podporu. Kruh je umiestnený vpravo, ľavá strana prechádza do bielej.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 880" role="img" aria-labelledby="title desc">
+<title id="title">Spoločná cesta k pomoci</title><desc id="desc">Rodina na začiatku cesty cez porozumenie, odborné materiály a zdravotnú pomoc až k symbolu podpory.</desc>
 <defs>
- <linearGradient id="bg" x1="0" y1=".5" x2="1" y2=".5"><stop offset="0" stop-color="#fff"/><stop offset=".46" stop-color="#fff"/><stop offset=".73" stop-color="#edf9f5"/><stop offset="1" stop-color="#d8f4e9"/></linearGradient>
- <linearGradient id="hill" x1=".1" x2=".9" y1="0" y2="1"><stop stop-color="#b7edda"/><stop offset="1" stop-color="#51c78e"/></linearGradient>
- <linearGradient id="path" x1=".2" x2=".8" y1="1" y2="0"><stop stop-color="#079a83"/><stop offset="1" stop-color="#008a84"/></linearGradient>
- <clipPath id="circle"><circle cx="1241" cy="431" r="320"/></clipPath>
- <filter id="drop" x="-25%" y="-25%" width="150%" height="150%"><feDropShadow dx="0" dy="10" stdDeviation="19" flood-color="#2f8e78" flood-opacity=".22"/></filter>
+<linearGradient id="sky" x1="0" x2="1"><stop offset=".25" stop-color="#fff"/><stop offset=".58" stop-color="#fff"/><stop offset="1" stop-color="#e5f7fc"/></linearGradient>
+<linearGradient id="mountain" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#b7eddf"/><stop offset="1" stop-color="#65c9b2"/></linearGradient>
+<linearGradient id="road" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#def8f4"/><stop offset="1" stop-color="#fff"/></linearGradient>
+<filter id="shadow"><feDropShadow dx="0" dy="8" stdDeviation="11" flood-color="#407c7e" flood-opacity=".13"/></filter>
 </defs>
-<rect width="1600" height="880" fill="url(#bg)"/>
-<circle cx="1241" cy="431" r="324" fill="#fdfdfa" stroke="#ffefcd" stroke-width="20" filter="url(#drop)"/>
-<g clip-path="url(#circle)">
- <rect x="918" y="110" width="647" height="642" fill="#fffefa"/>
- <circle cx="1140" cy="320" r="91" fill="#ffe2a1"/>
- <path d="M897 430Q1053 314 1222 357T1588 340V756H897Z" fill="#acf0dc"/>
- <path d="M897 528Q1110 395 1248 466T1598 443V760H897Z" fill="url(#hill)"/>
- <path d="M897 635Q1110 524 1274 568T1588 546V760H897Z" fill="#68d49e"/>
- <path d="M897 731Q1120 650 1310 694T1590 676V780H897Z" fill="#45c887"/>
- <g fill="#08a15a"><path d="M939 472Q937 425 970 427Q990 425 1001 451Q1029 407 1057 431Q1076 455 1061 477Z"/><path d="M1438 515Q1429 457 1459 463Q1489 469 1498 490Q1518 465 1542 483L1564 525Z"/></g>
- <path d="M1098 797 C1210 713 1340 728 1316 647 C1296 577 1067 619 1075 522 C1084 410 1363 473 1374 374 C1379 345 1370 322 1383 297" stroke="#fff" stroke-width="83" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
- <path d="M1098 797 C1210 713 1340 728 1316 647 C1296 577 1067 619 1075 522 C1084 410 1363 473 1374 374 C1379 345 1370 322 1383 297" stroke="url(#path)" stroke-width="62" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
- <circle cx="1114" cy="643" r="49" fill="#fff"/><circle cx="1114" cy="643" r="33" fill="#ffbb24"/><circle cx="1114" cy="643" r="17" fill="#fff"/>
- <circle cx="1285" cy="500" r="48" fill="#fff"/><circle cx="1285" cy="500" r="31" fill="#087d7e"/><circle cx="1285" cy="500" r="17" fill="#fff"/>
- <path d="M1386 346 C1335 299 1303 273 1308 238 C1312 207 1350 198 1378 226 C1402 195 1447 207 1455 243 C1461 274 1431 307 1386 346Z" fill="#f15e50" stroke="#fff" stroke-width="9" stroke-linejoin="round"/>
- <g stroke="#fdbb21" stroke-width="14" stroke-linecap="round"><path d="M1381 185V158"/><path d="M1337 190l-18-24"/><path d="M1427 186l18-25"/></g>
+<rect width="1600" height="880" fill="url(#sky)"/>
+<circle cx="1400" cy="181" r="100" fill="#ffedb9" opacity=".78"/>
+<g opacity=".56" fill="#d6f3fa"><ellipse cx="1170" cy="145" rx="95" ry="35"/><ellipse cx="1200" cy="124" rx="50" ry="40"/><ellipse cx="1490" cy="101" rx="71" ry="29"/></g>
+<path d="M575 750Q770 515 973 466T1600 340V880H575Z" fill="#d6f4f5"/>
+<path d="M640 775Q860 537 1110 548T1600 515V880H640Z" fill="#c6eee3"/>
+<path d="M670 840Q930 655 1150 680T1600 610V880H670Z" fill="url(#mountain)"/>
+<path d="M930 897Q1015 817 1185 775Q1440 709 1312 636Q1218 576 1347 533Q1460 498 1424 411Q1400 364 1453 302" stroke="#f7eadc" stroke-width="95" stroke-linecap="round" fill="none" opacity=".5"/>
+<path d="M930 897Q1015 817 1185 775Q1440 709 1312 636Q1218 576 1347 533Q1460 498 1424 411Q1400 364 1453 302" stroke="#fff" stroke-width="71" stroke-linecap="round" fill="none"/>
+<path d="M930 897Q1015 817 1185 775Q1440 709 1312 636Q1218 576 1347 533Q1460 498 1424 411Q1400 364 1453 302" stroke="#72cfc4" stroke-opacity=".42" stroke-dasharray="9 30" stroke-width="5" stroke-linecap="round" fill="none"/>
+<!-- Supporting waypoint icons, distinct from the way itself -->
+<g filter="url(#shadow)"><circle cx="1292" cy="600" r="54" fill="#fff"/><path d="M1266 605q25-47 51-3q18 36-21 38q-32-2-30-35" fill="none" stroke="#14a1a4" stroke-width="11"/><path d="m1291 623 16-16" fill="none" stroke="#ffbe5a" stroke-width="9" stroke-linecap="round"/></g>
+<g filter="url(#shadow)"><circle cx="1391" cy="504" r="55" fill="#fff"/><rect x="1364" y="476" width="22" height="42" rx="3" fill="#67b1c6"/><rect x="1387" y="468" width="20" height="50" rx="3" fill="#2b8f9b"/><rect x="1408" y="483" width="15" height="35" rx="3" fill="#f4ba4f"/><path d="m1362 521 64 0" stroke="#b5dfdb" stroke-width="5"/></g>
+<g filter="url(#shadow)"><circle cx="1424" cy="380" r="56" fill="#fff"/><path d="M1389 396v-31l35-23l35 23v31Z" fill="#77cbd8"/><rect x="1393" y="363" width="62" height="43" fill="#eefbfc"/><path d="M1424 350v27m-13-13h26" stroke="#ef866c" stroke-width="7" stroke-linecap="round"/><rect x="1418" y="383" width="13" height="22" fill="#3896ad"/></g>
+<!-- Support heart destination -->
+<g filter="url(#shadow)"><path d="M1451 313C1411 274 1390 254 1395 229C1401 200 1433 195 1451 218C1478 184 1519 205 1518 236C1517 264 1489 285 1451 313Z" fill="#f1685d" stroke="#fff" stroke-width="8"/><path d="M1451 180v-22m-32 34-15-16m78 16 16-17" stroke="#ffc247" stroke-width="8" stroke-linecap="round"/></g>
+<!-- Leaves and trees -->
+<g fill="#70caaa"><path d="M1078 522q-50-58-22-89q30-30 51 11q15-60 47-41q32 19 6 63q62-22 61 17q0 29-61 45Z"/><path d="M1548 574q-47-53-14-89q30-23 48 15q18-44 41-18q18 22-6 60Z"/></g>
+<path d="M1109 474v80M1561 532v63" stroke="#639a80" stroke-width="12"/>
+<!-- Three family members -->
+<g transform="translate(725 555)" filter="url(#shadow)">
+<path d="M2 240q-16-96 11-165q18-49 88-38q52 4 74 76l41 131Z" fill="#247d94"/>
+<ellipse cx="100" cy="20" rx="55" ry="66" fill="#e8ae85"/><path d="M44 11q-5-87 63-85q66 10 45 88q-21-38-51-39q-25 19-57 36Z" fill="#5d4538"/><path d="M104 20q9 6 20 1m-19 22q18 14 29-4" fill="none" stroke="#a46a51" stroke-width="3" stroke-linecap="round"/>
+<path d="M167 236q-9-80 10-139q20-46 76-49q66 4 87 74l17 114Z" fill="#f7bd53"/>
+<ellipse cx="238" cy="44" rx="48" ry="57" fill="#ebaf87"/><path d="M187 41q-13-66 34-84q54-18 73 55q-49-20-88 10Z" fill="#80543c"/><circle cx="185" cy="-8" r="19" fill="#80543c"/><path d="m250 45 10 2m-10 18q14 10 25-2" stroke="#b8735b" stroke-width="3" fill="none" stroke-linecap="round"/>
+<path d="M326 237q-13-67 17-100q27-25 67-12q46 18 45 111Z" fill="#128f9e"/><ellipse cx="386" cy="110" rx="39" ry="46" fill="#eabb96"/><path d="M346 103q-13-51 39-57q53-1 47 51q-33-20-49-17q-20 17-37 23" fill="#7f543a"/><path d="m396 111 8 2m-6 15q12 9 23-3" stroke="#ab6e59" stroke-width="3" fill="none" stroke-linecap="round"/>
+<path d="M166 166Q208 210 340 182" fill="none" stroke="#edb18b" stroke-width="25" stroke-linecap="round"/>
 </g>
+<path d="M658 806q-25-65-5-82q28-10 31 45q16-40 36-21q17 26-7 66" fill="#86caa1"/>
 </svg>
