@@ -366,7 +366,8 @@ function setView(view, scroll = true) {
   $$('[data-view]').forEach((section) => { const active = section.dataset.view === view; section.hidden = !active; section.classList.toggle("is-active", active); });
   $$(".nav-link").forEach((button) => button.classList.toggle("is-active", button.dataset.viewLink === view));
   const hash = { home: "domov", resources: "zdroje", ambulances: "ambulancie", about: "o-projekte" }[view];
-  if (hash) history.replaceState(null, "", `#${hash}`);
+  // Domov nemá v adrese žiadnu kotvu; ostatné sekcie si ju nechávajú, aby sa dali zdieľať.
+  if (hash) history.replaceState(null, "", view === "home" ? location.pathname + location.search : `#${hash}`);
   if (scroll) $(`#${view}-view`)?.scrollIntoView({ behavior: "smooth", block: "start" });
   closeMobileMenu();
 }
