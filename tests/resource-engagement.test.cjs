@@ -44,3 +44,26 @@ test("approved feedback uses a filtered read",async()=>{
   assert.ok(path.includes("status=eq.approved"));assert.ok(path.includes("body=not.is.null"));
  }finally{global.fetch=old;}
 });
+
+test("anonymous rating is pending, limited and contains no raw IP",async()=>{
+ const original=global.fetch;const calls=[];
+ global.fetch=async(url,opts)=>{
+  calls.push({url,opts});
+  if(url.includes("consume_resource_feedback_quota"))return mock(true);
+  if(url.includes("/resource_feedback"))return mock(null,201);
+  return mock([{id}]);
+ };
+ try{
+  const r=res();
+  await feedback({method:"POST",headers:{origin:"https://cestakpomoci-sk.vercel.app",
+    host:"cestakpomoci-sk.vercel.app","content-type":"application/json",
+    "x-forwarded-for":"192.0.2.18","user-agent":"browser"},
+    body:{resourceId:id,rating:4,comment:""}},r);
+  assert.equal(r.code,202);
+  assert.equal(calls.length,3);
+  const post=JSON.parse(calls[2].opts.body);
+  assert.equal(post.status,"pending");assert.equal(post.body,null);
+  assert.equal(post.rating,4);assert.match(post.actor_hash,/^[a-f0-9]{64}$/);
+  assert.ok(!JSON.stringify(post).includes("192.0.2.18"));
+ }finally{global.fetch=original;}
+});
