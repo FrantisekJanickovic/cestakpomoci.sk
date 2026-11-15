@@ -17,6 +17,7 @@ module.exports=async function handler(req,res){
   if(!sameOrigin(req))return res.status(403).json({error:"Neplatný pôvod požiadavky."});
   if(!String(req.headers?.["content-type"]||"").toLowerCase().startsWith("application/json"))return res.status(415).json({error:"Očakáva sa JSON."});
   const body=req.body||{};
+  if(JSON.stringify(body).length>4000)return res.status(413).json({error:"Príliš dlhé hodnotenie."});
   if(body.website||body.contact_url)return res.status(202).json({message:"Ďakujeme za spätnú väzbu."});
   const name=clean(body.name,35)||"Anonym";
   const comment=clean(body.comment,1201);
@@ -27,6 +28,9 @@ module.exports=async function handler(req,res){
   const exists=await request(c,"content_resources?select=id&is_published=eq.true&id=eq."+encodeURIComponent(id)+"&limit=1");
   if(!exists?.length)return res.status(404).json({error:"Materiál sa nenašiel."});
   const hash=fingerprint(c,req,id);
+  const date=new Date().toISOString().slice(0,10);
+  const quota=await request(c,"rpc/consume_resource_feedback_quota",{method:"POST",body:{p_hash:fingerprint(c,req,"quota:"+date),p_day:date}});
+  if(quota!==true)return res.status(429).json({error:"Dnes už bol prekročený limit hodnotení. Skús to neskôr."});
   try{
    await request(c,"resource_feedback",{method:"POST",body:{resource_id:id,display_name:name,body:comment||null,rating,actor_hash:hash,status:"pending"},headers:{"Prefer":"return=minimal"}});
   }catch(e){if(e.status===409)return res.status(429).json({error:"Z tohto zariadenia už bol materiál hodnotený. Ďalšie hodnotenie môžeš odoslať po moderácii iba pri zamietnutí pôvodného."});throw e;}
