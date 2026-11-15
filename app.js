@@ -156,6 +156,25 @@ function populateSelect(id, values) {
   });
 }
 
+// Počítadlo v hero: od 0 po celkový počet, najviac 5 sekúnd, iba pri prvom načítaní.
+let resourceCountShown = false;
+function showResourceCount(total) {
+  const line = $("#resource-count-line"); const target = $("#resource-count");
+  if (!line || !target) return;
+  line.hidden = total === 0;
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (resourceCountShown || reduced || total === 0) { target.textContent = total; resourceCountShown = true; return; }
+  resourceCountShown = true;
+  const duration = Math.min(5000, Math.max(1200, total * 25));
+  const start = performance.now();
+  const tick = (now) => {
+    const progress = Math.min(1, (now - start) / duration);
+    target.textContent = Math.round(total * (1 - Math.pow(1 - progress, 3)));
+    if (progress < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
 async function loadData() {
   const [resourcesResult, ambulancesResult] = await Promise.allSettled([
     fetch("/api/resources"),
@@ -164,7 +183,7 @@ async function loadData() {
 
   if (resourcesResult.status === "fulfilled" && resourcesResult.value.ok) {
     state.resources = await resourcesResult.value.json();
-    if($("#resource-count"))$("#resource-count").textContent = state.resources.length;
+    showResourceCount(state.resources.length);
     populateSelect("#topic-filter", uniqueSorted(state.resources.flatMap((item) => item.topics || [])));
     populateSelect("#audience-filter", uniqueSorted(state.resources.flatMap((item) => item.audience || [])));
     populateSelect("#age-filter", uniqueSorted(state.resources.flatMap((item) => item.age_groups || [])));

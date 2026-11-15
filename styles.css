@@ -99,7 +99,9 @@ h3 { margin-bottom: 0.6rem; font-size: 1.2rem; font-weight: 600; letter-spacing:
 .hero-copy { position: relative; z-index: 1; width: min(520px, 46%); }
 .hero-lead { margin-bottom: 2.25rem; color: var(--muted); font-size: 1.2rem; max-width: 44ch; }
 .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
-.hero-note { margin: 1.5rem 0 0; color: var(--soft-muted); font-size: 0.9rem; max-width: 46ch; }
+.hero-count { margin: 1.75rem 0 0; color: var(--muted); font-size: 0.95rem; }
+.hero-count strong { color: var(--ink); font: 700 1.25rem var(--display); font-variant-numeric: tabular-nums; margin-right: 0.15rem; }
+.hero-note { margin: 0.5rem 0 0; color: var(--soft-muted); font-size: 0.9rem; max-width: 46ch; }
 .hero-visual {
   position: absolute; z-index: 0; bottom: 0;
   right: max(50% - 50vw, -110px);
