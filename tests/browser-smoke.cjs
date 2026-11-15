@@ -132,6 +132,40 @@ const assert = require("node:assert/strict");
     await firstStep.check();
     assert.equal(await page.locator('[data-learning-step="0"]').isChecked(), true);
     assert.deepEqual(jsErrors, [], "JavaScript exceptions: " + jsErrors.join("; "));
+    // Dedicated material page: short overview, stars, tracked original and anonymous feedback.
+    const detail=await browser.newPage();
+    const detailId="11111111-1111-4111-8111-111111111111";
+    const submitted=[];
+    await detail.route("**/api/resources",route=>route.fulfill({
+      status:200,contentType:"application/json",
+      body:JSON.stringify([{id:detailId,title:"Skúšobný materiál",owner_name:"MIELI",
+        source_url:"https://mieli.fi/en/materials/",excerpt_sk:"Slovenské zhrnutie testovacieho zdroja.",
+        audience:["Rodič alebo blízky"],topics:["Úzkosť a strach"],age_groups:["13–15 rokov"],
+        resource_format:"PDF",source_country_code:"FI",available_language_codes:["en"],
+        price_type:"Bezplatné",rating_sum:9,rating_count:2,open_count:17}])
+    }));
+    await detail.route("**/api/resource-feedback*",route=>{
+      if(route.request().method()==="POST"){
+        submitted.push(route.request().postDataJSON());
+        return route.fulfill({status:202,contentType:"application/json",body:JSON.stringify({message:"Ďakujeme. Hodnotenie čaká na schválenie."})});
+      }
+      return route.fulfill({status:200,contentType:"application/json",
+        body:JSON.stringify({comments:[{id:"comment",display_name:"Test",body:"Výborný zdroj.",rating:5,created_at:"2026-11-13T10:00:00Z"}]})});
+    });
+    await detail.goto("http://127.0.0.1:4173/material.html?id="+detailId,{waitUntil:"load"});
+    await detail.locator("#detail-title").waitFor({state:"visible"});
+    assert.equal(await detail.locator("#detail-title").innerText(),"Skúšobný materiál");
+    assert.match(await detail.locator("#detail-excerpt").innerText(),/Slovenské zhrnutie/);
+    assert.match(await detail.locator("#detail-rating").innerText(),/4.5/);
+    assert.match(await detail.locator("#detail-open").getAttribute("href"),/api\/resource-open/);
+    await detail.locator('input[name="rating"][value="5"]').check();
+    await detail.locator("#review-form button[type=submit]").click();
+    await detail.locator("#review-message").getByText(/čaká na schválenie/).waitFor();
+    assert.equal(submitted.length,1);
+    assert.equal(submitted[0].comment,"");
+    assert.equal(submitted[0].rating,5);
+    assert.match(await detail.locator("#published-reviews").innerText(),/Výborný zdroj/);
+    await detail.close();
     // Staging admin is intentionally inactive without separate Supabase configuration.
     const adminPage = await browser.newPage();
     const adminErrors = [];
