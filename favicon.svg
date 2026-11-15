@@ -1,5 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Cesta k pomoci – biela kľukatá cesta na červenom pozadí">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Cesta k pomoci – biela kľukatá cesta k slnku na tyrkysovom pozadí">
 <title>Cesta k pomoci</title>
-<rect width="64" height="64" rx="15" fill="#df5554"/>
-<path d="M17 70 C25 59 46 60 44 46 C43 37 23 43 23 31 C23 19 44 24 42 9" fill="none" stroke="#fff" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+<rect width="64" height="64" rx="16" fill="#17788f"/>
+<path d="M20 55 C21 44 45 45 44 35 C43 26 23 30 25 21 C26 17 29 15 33 15" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="45" cy="15" r="7" fill="#f4b740"/>
 </svg>
