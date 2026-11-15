@@ -10,7 +10,7 @@ module.exports = async function handler(request, response) {
   if (!baseUrl || !publishableKey) return response.status(503).json({ error: "Data source is not configured" });
 
   const fields = [
-    "external_id", "title", "owner_name", "owner_type", "audience", "audience_raw",
+    "id", "external_id", "created_at", "open_count", "rating_sum", "rating_count", "title", "owner_name", "owner_type", "audience", "audience_raw",
     "age_groups", "age_raw", "age_min", "age_max", "topics", "topics_raw",
     "resource_format", "support_level", "access_type", "registration_type", "price_type",
     "language_code", "source_country_code", "original_language_code", "available_language_codes", "excerpt_sk", "evidence_level", "hub_priority", "learning_phase", "source_url", "checked_at",
