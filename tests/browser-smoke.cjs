@@ -18,9 +18,9 @@ const assert = require("node:assert/strict");
     assert.ok(loaded, "local server failed to start");
     await page.waitForLoadState("load");
     // Hero must communicate the offer, show one coherent visual journey and provide an icon.
-    assert.match(await page.locator("#hero-title").innerText(),/dieťa potrebuje pomoc/);
-    assert.match(await page.locator(".hero-lead").innerText(),/sprievodca/i);
-    assert.match(await page.locator(".hero-lead").innerText(),/ambulancie/i);
+    assert.match(await page.locator("#hero-title").innerText(),/kde začať/);
+    assert.match(await page.locator(".hero-lead").innerText(),/zorientuj sa/i);
+    assert.match(await page.locator(".hero-lead").innerText(),/kontakt na pomoc/i);
     assert.equal(await page.locator(".hero-visual img").getAttribute("src"),"/hero-journey.svg");
     assert.equal(await page.locator("link[rel=icon]").getAttribute("href"),"/favicon.svg");
     const illustration=await page.request.get("http://127.0.0.1:4173/hero-journey.svg");
@@ -36,6 +36,11 @@ const assert = require("node:assert/strict");
     assert.ok((await page.locator(".hero-copy").boundingBox()).width<=390);
     await page.setViewportSize({width:1280,height:850});
 
+    assert.ok(await page.locator("#home-view").isVisible());
+    assert.ok(await page.locator("#resources-view").isHidden());
+    assert.equal(await page.locator(".benefit").count(),6);
+    assert.ok(await page.locator("#top-rated-section").isHidden());
+    assert.ok(await page.locator("#most-opened-section").isHidden());
     // Multilingual catalogue controls must exist and actually filter results.
     await page.route("**/api/resources",route=>route.fulfill({
       status:200,contentType:"application/json",
@@ -53,11 +58,15 @@ const assert = require("node:assert/strict");
       ])
     }));
     await page.reload({waitUntil:"load"});
+    console.log("RESOURCE_DIAG",jsErrors,await page.locator("#resource-language").count(),await page.locator("#resource-language option").count());
     await page.locator("#resource-language option[value=cs]").waitFor({state:"attached"});
-    assert.equal(await page.locator(".resource-card-free").count(),2);
-    assert.equal(await page.locator(".free-ribbon").count(),2);
-    assert.equal(await page.locator(".free-ribbon").first().innerText(),"ZDARMA");
-    assert.ok(!(await page.locator(".resource-card").filter({hasText:"Český zdroj"}).locator(".free-ribbon").count()));
+    assert.equal(await page.locator("#latest-resource-list .resource-card").count(),3);
+    assert.ok(await page.locator("#top-rated-section").isHidden());
+    await page.locator('[data-view-link="resources"]').first().click();
+    assert.equal(await page.locator("#resource-list .resource-card-free").count(),2);
+    assert.equal(await page.locator("#resource-list .free-ribbon").count(),2);
+    assert.equal(await page.locator("#resource-list .free-ribbon").first().innerText(),"ZDARMA");
+    assert.ok(!(await page.locator("#resource-list .resource-card").filter({hasText:"Český zdroj"}).locator(".free-ribbon").count()));
 
     // Flag quick filters are built from live data; selection is exclusive.
     const flagButtons=page.locator("#resource-country-flags [data-country-code]");
@@ -79,6 +88,8 @@ const assert = require("node:assert/strict");
     await page.locator('[data-country-code="CZ"]').click();
     assert.equal(await page.locator("#resource-country").inputValue(),"");
     assert.equal(await page.locator("#resource-results-count").innerText(),"3");
+    assert.equal(await page.locator("#resource-list .card-actions a").count(),6);
+    assert.ok((await page.locator("#resource-list .card-actions").first().innerText()).includes("Detail"));
     await page.locator("#resource-country").selectOption("FI");
     assert.equal(await page.locator('[data-country-code="FI"]').getAttribute("aria-pressed"),"true");
     await page.locator("#clear-resource-filters").click();
@@ -122,6 +133,40 @@ const assert = require("node:assert/strict");
     await firstStep.check();
     assert.equal(await page.locator('[data-learning-step="0"]').isChecked(), true);
     assert.deepEqual(jsErrors, [], "JavaScript exceptions: " + jsErrors.join("; "));
+    // Dedicated material page: short overview, stars, tracked original and anonymous feedback.
+    const detail=await browser.newPage();
+    const detailId="11111111-1111-4111-8111-111111111111";
+    const submitted=[];
+    await detail.route("**/api/resources",route=>route.fulfill({
+      status:200,contentType:"application/json",
+      body:JSON.stringify([{id:detailId,title:"Skúšobný materiál",owner_name:"MIELI",
+        source_url:"https://mieli.fi/en/materials/",excerpt_sk:"Slovenské zhrnutie testovacieho zdroja.",
+        audience:["Rodič alebo blízky"],topics:["Úzkosť a strach"],age_groups:["13–15 rokov"],
+        resource_format:"PDF",source_country_code:"FI",available_language_codes:["en"],
+        price_type:"Bezplatné",rating_sum:9,rating_count:2,open_count:17}])
+    }));
+    await detail.route("**/api/resource-feedback*",route=>{
+      if(route.request().method()==="POST"){
+        submitted.push(route.request().postDataJSON());
+        return route.fulfill({status:202,contentType:"application/json",body:JSON.stringify({message:"Ďakujeme. Hodnotenie čaká na schválenie."})});
+      }
+      return route.fulfill({status:200,contentType:"application/json",
+        body:JSON.stringify({comments:[{id:"comment",display_name:"Test",body:"Výborný zdroj.",rating:5,created_at:"2026-11-13T10:00:00Z"}]})});
+    });
+    await detail.goto("http://127.0.0.1:4173/material.html?id="+detailId,{waitUntil:"load"});
+    await detail.locator("#detail-title").waitFor({state:"visible"});
+    assert.equal(await detail.locator("#detail-title").innerText(),"Skúšobný materiál");
+    assert.match(await detail.locator("#detail-excerpt").innerText(),/Slovenské zhrnutie/);
+    assert.match(await detail.locator("#detail-rating").innerText(),/4.5/);
+    assert.match(await detail.locator("#detail-open").getAttribute("href"),/api\/resource-open/);
+    await detail.locator('input[name="rating"][value="5"]').check();
+    await detail.locator("#review-form button[type=submit]").click();
+    await detail.waitForFunction(() => document.querySelector("#review-message")?.textContent.includes("čaká na schválenie"));
+    assert.equal(submitted.length,1);
+    assert.equal(submitted[0].comment,"");
+    assert.equal(submitted[0].rating,5);
+    assert.match(await detail.locator("#published-reviews").innerText(),/Výborný zdroj/);
+    await detail.close();
     // Staging admin is intentionally inactive without separate Supabase configuration.
     const adminPage = await browser.newPage();
     const adminErrors = [];

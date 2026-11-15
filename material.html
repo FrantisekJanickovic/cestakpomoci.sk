@@ -1,0 +1,55 @@
+<!doctype html><html lang="sk"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Podrobnosti a hodnotenia odborného materiálu v knižnici Cesta k pomoci.">
+<title>Detail materiálu – Cesta k pomoci</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<script src="/material.js" defer></script></head><body>
+<header class="site-header"><div class="nav-shell detail-nav">
+<a class="brand" href="/#domov"><span class="brand-mark" aria-hidden="true">♡</span><span>Cesta k pomoci</span></a>
+<nav class="desktop-nav" aria-label="Navigácia"><a href="/#domov">Domov</a><a href="/#zdroje">Materiály</a><a href="/#ambulancie">Ambulancie</a></nav>
+<a href="/#zdroje" class="button button-outline">← Späť do knižnice</a></div></header>
+<main class="material-page">
+<div class="material-breadcrumb"><a href="/#zdroje">Materiály</a><span aria-hidden="true">/</span><span id="detail-crumb">Detail materiálu</span></div>
+<div id="detail-status" role="status">Načítavam podrobnosti materiálu…</div>
+<article id="detail-main" hidden>
+  <div class="material-header">
+    <div><p class="eyebrow" id="detail-format">Odborný materiál</p><h1 id="detail-title"></h1><p class="material-owner" id="detail-owner"></p>
+    <div id="detail-rating" aria-live="polite"></div></div>
+    <div class="material-cta"><a class="button button-primary button-large" id="detail-open" href="#" target="_blank" rel="noopener noreferrer">Otvoriť originál ↗</a><small>Odkaz vedie na stránku autora materiálu.</small></div>
+  </div>
+  <div class="material-content-layout">
+    <section class="material-description" aria-labelledby="detail-about-heading">
+      <h2 id="detail-about-heading">O materiáli</h2>
+      <p id="detail-excerpt"></p>
+      <h3>Pre koho je určený</h3><p id="detail-audience"></p>
+      <h3>Témy a využitie</h3><div id="detail-topics" class="chips"></div>
+      <p class="material-disclaimer">Zhrnutie slúži na orientáciu, nie je diagnózou ani náhradou zdravotnej starostlivosti. Pri bezprostrednom ohrození volaj 112 alebo 155.</p>
+    </section>
+    <aside class="material-info"><h2>Rýchly prehľad</h2><dl id="detail-facts"></dl></aside>
+  </div>
+  <section class="material-feedback" id="feedback-section" aria-labelledby="reviews-heading">
+    <div class="home-section-header"><div><p class="eyebrow">Skúsenosti čitateľov</p><h2 id="reviews-heading">Hodnotenia a komentáre</h2></div></div>
+    <p class="material-privacy">Komentáre pred zverejnením kontrolujeme. Nepíš sem meno dieťaťa, diagnózu, adresu ani iné osobné alebo zdravotné údaje. Žiadna registrácia nie je potrebná. Na ochranu pred spamom spracúvame zabezpečený pseudonymný odtlačok IP adresy a prehliadača; surovú IP v databáze komentárov neukladáme.</p>
+    <div class="feedback-layout">
+      <form id="review-form" class="review-form">
+        <h3>Ohodnoť tento materiál (1–5 hviezdičiek)</h3>
+        <fieldset class="stars-input"><legend>Počet hviezdičiek</legend>
+          <label><input type="radio" name="rating" value="1" required>1 ★</label>
+          <label><input type="radio" name="rating" value="2">2 ★</label>
+          <label><input type="radio" name="rating" value="3">3 ★</label>
+          <label><input type="radio" name="rating" value="4">4 ★</label>
+          <label><input type="radio" name="rating" value="5">5 ★</label>
+        </fieldset>
+        <label class="review-input">Prezývka (nepovinné)<input name="name" maxlength="35" autocomplete="nickname" placeholder="Anonym"></label>
+        <label class="review-input">Komentár (nepovinný)<textarea name="comment" minlength="8" maxlength="1200" rows="5" placeholder="V čom bol materiál užitočný? Nepíš osobné ani zdravotné údaje."></textarea></label>
+        <label class="spam-honeypot" aria-hidden="true" tabindex="-1">Website<input name="website" type="text" autocomplete="off" tabindex="-1"></label>
+        <button type="submit" class="button button-primary">Odoslať na kontrolu →</button>
+        <p id="review-message" role="status" aria-live="polite"></p>
+      </form>
+      <div class="review-feed"><h3>Zverejnené komentáre</h3><div id="published-reviews"><p>Zatiaľ tu nie sú schválené komentáre.</p></div></div>
+    </div>
+  </section>
+</article></main>
+<footer><a href="/#domov">Cesta k pomoci</a><p>Overené zdroje a kontakty pre duševné zdravie detí.</p><span>© 2026</span></footer>
+</body></html>
