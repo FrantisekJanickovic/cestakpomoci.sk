@@ -160,7 +160,7 @@ const assert = require("node:assert/strict");
     assert.match(await detail.locator("#detail-open").getAttribute("href"),/api\/resource-open/);
     await detail.locator('input[name="rating"][value="5"]').check();
     await detail.locator("#review-form button[type=submit]").click();
-    await detail.locator("#review-message").getByText(/čaká na schválenie/).waitFor();
+    await detail.waitForFunction(() => document.querySelector("#review-message")?.textContent.includes("čaká na schválenie"));
     assert.equal(submitted.length,1);
     assert.equal(submitted[0].comment,"");
     assert.equal(submitted[0].rating,5);
