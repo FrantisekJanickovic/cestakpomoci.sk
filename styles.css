@@ -97,6 +97,7 @@ h3 { margin-bottom: 0.6rem; font-size: 1.2rem; font-weight: 600; letter-spacing:
 /* ── Domov: hero ────────────────────────────────────────── */
 .hero { position: relative; display: flex; align-items: center; min-height: clamp(520px, 43vw, 620px); padding-block: 3.5rem; }
 .hero-copy { position: relative; z-index: 1; width: min(520px, 46%); }
+.hero-copy .eyebrow { margin-bottom: 1rem; font-size: 1rem; line-height: 1.45; }
 .hero-lead { margin-bottom: 2.25rem; color: var(--muted); font-size: 1.2rem; max-width: 44ch; }
 .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
 .hero-count { margin: 1.75rem 0 0; color: var(--muted); font-size: 0.95rem; }
